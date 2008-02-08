@@ -1,0 +1,6 @@
+#!/bin/sh
+
+make clean
+make 
+dpkg-buildpackage -rfakeroot 
+dpkg -i ../multilist_0.3.0_all.deb
