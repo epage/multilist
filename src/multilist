@@ -1,0 +1,47 @@
+#!/usr/bin/env python2.5
+# -*- coding: utf-8 -*-
+
+#/scratchbox/login
+#Xephyr :2 -host-cursor -screen 800x480x16 -dpi 96 -ac
+#af-sb-init.sh start
+#run-standalone.sh ./eggtimer.py
+#
+#https://stage.maemo.org/svn/maemo/projects/haf/trunk/
+#http://www.maemo.org/platform/docs/pymaemo/pyosso_context.html
+#http://maemo-hackers.org/apt/
+
+import os
+import sys
+			
+if __name__ == "__main__":
+	
+	try:
+		import tempfile
+		import gtk
+		tmpdir=tempfile.gettempdir()
+		
+   		os.mkdir(os.path.join(tmpdir, "multilist_lock"))
+	except OSError:
+   		## Failed: another instance is running
+		
+		mbox=gtk.MessageDialog(None,gtk.DIALOG_MODAL,gtk.MESSAGE_ERROR,gtk.BUTTONS_YES_NO,"Multilist already runnging.Start anyway? (Could result in db problems!)") 
+		response=mbox.run() 
+ 		mbox.hide() 
+ 		mbox.destroy() 
+		if response==gtk.RESPONSE_NO:
+			sys.exit()
+
+	try:
+		
+		from multilistclasses import libmultilist
+		#print dir(eggtimerclasses)
+		app = libmultilist.multilistclass() 
+		app.main() 
+   
+	finally:
+   		## Remove the PID file
+   		# (...)
+   		## Delete directory
+   		os.rmdir(os.path.join(tmpdir, "multilist_lock"))
+		
+	
