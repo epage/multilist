@@ -1,24 +1,5 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-  
-"""
-    This file is part of Multilist.
-
-    Multilist is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
-
-    Multilist is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
-
-    You should have received a copy of the GNU General Public License
-    along with Multilist.  If not, see <http://www.gnu.org/licenses/>.
-    
-    Copyright (C) 2008 Christoph Würstle
-"""
 
 import gobject
 import time
@@ -39,12 +20,54 @@ import logging
 import libspeichern 
  
  
+class ProgressDialog(gtk.Dialog):
+	
+	def pulse(self):
+		#self.progressbar.pulse()
+		pass
+	
+	def __init__(self,title="Sync process", parent=None):
+		gtk.Dialog.__init__(self,title,parent,gtk.DIALOG_MODAL | gtk.DIALOG_DESTROY_WITH_PARENT,())
+		
+		logging.info("ProgressDialog, init")
+		
+		label=gtk.Label("Sync process running...please wait")
+		self.vbox.pack_start(label, True, True, 0)
+		label=gtk.Label("(this can take some minutes)")
+		self.vbox.pack_start(label, True, True, 0)
+		
+		#self.progressbar=gtk.ProgressBar()
+		#self.vbox.pack_start(self.progressbar, True, True, 0)
+		
+		#self.set_keep_above(True)
+  		self.vbox.show_all()
+		self.show()
+ 
 class Sync(gtk.VBox): 
 	
 	__gsignals__ = {
  		'syncFinished' : (gobject.SIGNAL_RUN_LAST, gobject.TYPE_NONE,(gobject.TYPE_STRING,)),
 		'syncBeforeStart' : (gobject.SIGNAL_RUN_LAST, gobject.TYPE_NONE,(gobject.TYPE_STRING,)),
  	}
+	
+	def changeSyncStatus(self,active,title):
+		self.syncStatusLabel.set_text(title)
+		if active==True:
+			if self.progress==None:
+				self.progress=ProgressDialog(parent=self.parentwindow)
+				
+		else:
+			if self.progress!=None:
+				self.progress.hide()		
+				self.progress.destroy()
+				self.progress=None
+	
+	def pulse(self):
+		if self.progress!=None:
+			self.progress.pulse()
+		#if self.server!=None:
+		#	self.server.pulse()
+		
 	
 	def getUeberblickBox(self):
 		frame=gtk.Frame("Abfrage")
@@ -118,7 +141,7 @@ class Sync(gtk.VBox):
 				
 			pausenzaehler+=1
 			if (pausenzaehler % 10)==0:
-				pass
+				self.pulse()
 				while (gtk.events_pending()):
     					gtk.main_iteration();
 				
@@ -129,7 +152,9 @@ class Sync(gtk.VBox):
 	
 	def doSync(self,sync_uuid,pcdatum,newSQLs,pcdatumjetzt):
 		#print uuid,pcdatum,newSQLs
-		self.syncStatusLabel.set_text("sync process running")
+		self.changeSyncStatus(True,"sync process running")
+		self.pulse()
+		
 		while (gtk.events_pending()):
     			gtk.main_iteration();
 		diff=time.time()-pcdatumjetzt
@@ -142,7 +167,7 @@ class Sync(gtk.VBox):
 		rows=self.db.ladeSQL(sql,(pcdatum,))
 		logging.info("doSync read sqls")
 		self.writeSQLTupel(newSQLs)
-		logging.info("doSync wrote sqls")
+		logging.info("doSync wrote "+str(len(newSQLs))+" sqls")
 		i=0
 		return rows
 		
@@ -159,12 +184,13 @@ class Sync(gtk.VBox):
 			
 			try:
 				ip=self.comboIP.get_child().get_text()
-				self.rpcserver = SimpleXMLRPCServer((ip, 50503),allow_none=True) 
+				self.rpcserver = SimpleXMLRPCServer((ip, self.port),allow_none=True) 
 				self.rpcserver.register_function(pow)
 				self.rpcserver.register_function(self.getLastSyncDate)
 				self.rpcserver.register_function(self.doSync)
 				self.rpcserver.register_function(self.getRemoteSyncUUID)
 				self.rpcserver.register_function(self.doSaveFinalTime)
+				self.rpcserver.register_function(self.pulse)
 				self.poll=select.poll()
 				self.poll.register(self.rpcserver.fileno())
 				gobject.timeout_add(1000, self.handleRPC)
@@ -197,13 +223,16 @@ class Sync(gtk.VBox):
 		if (time.time()>pcdatum):
 			pcdatum=int(time.time()) #größere Zeit nehmen
 			
+		self.pulse()
+		
 		#fime save time+uuid
 		sql="DELETE FROM sync WHERE uuid=?"
 		self.db.speichereSQL(sql,(sync_uuid,),log=False)
 		sql="INSERT INTO sync (syncpartner,uuid,pcdatum) VALUES (?,?,?)"
 		self.db.speichereSQL(sql,("x",str(sync_uuid),pcdatum),log=False)
 		self.emit("syncFinished","syncFinished")
-		self.syncStatusLabel.set_text("no sync process (at the moment)")
+		self.pulse()
+		self.changeSyncStatus(False,"no sync process (at the moment)")
 		return (self.sync_uuid,pcdatum)
 		
 	
@@ -212,16 +241,16 @@ class Sync(gtk.VBox):
 		#sql="DELETE FROM logtable WHERE sql LIKE externeStundenplanung"
 		#self.db.speichereSQL(sql)
 		
-		self.syncStatusLabel.set_text("sync process running")
+		self.changeSyncStatus(True,"sync process running")
 		while (gtk.events_pending()):
     			gtk.main_iteration();
 		self.emit("syncBeforeStart","syncBeforeStart")
 
 		self.db.speichereDirekt("syncRemoteIP",self.comboRemoteIP.get_child().get_text())
 		try:
-			server = xmlrpclib.ServerProxy("http://"+self.comboRemoteIP.get_child().get_text()+":50503",allow_none=True) 
+			self.server = xmlrpclib.ServerProxy("http://"+self.comboRemoteIP.get_child().get_text()+":"+str(self.port),allow_none=True) 
 			#lastDate=server.getLastSyncDate(str(self.sync_uuid))
-			server_sync_uuid=server.getRemoteSyncUUID()
+			server_sync_uuid=self.server.getRemoteSyncUUID()
 			lastDate=self.getLastSyncDate(str(server_sync_uuid))
 			
 			print ("LastSyncDate: "+str(lastDate)+" Now: "+str(int(time.time())))
@@ -229,42 +258,53 @@ class Sync(gtk.VBox):
 			sql="SELECT * FROM logtable WHERE pcdatum>?"
 			rows=self.db.ladeSQL(sql,(lastDate,))
 		
-			newSQLs=server.doSync(self.sync_uuid,lastDate,rows,time.time())
+			newSQLs=self.server.doSync(self.sync_uuid,lastDate,rows,time.time())
 		
 			logging.info("did do sync, processing sqls now")
 			if newSQLs!=-1:
 				self.writeSQLTupel(newSQLs)
 	
-				sync_uuid, finalpcdatum=server.doSaveFinalTime(self.sync_uuid)
+				sync_uuid, finalpcdatum=self.server.doSaveFinalTime(self.sync_uuid)
 				self.doSaveFinalTime(sync_uuid, finalpcdatum)
 			
+				self.changeSyncStatus(False,"no sync process (at the moment)")
+				
 				mbox =  gtk.MessageDialog(None,gtk.DIALOG_MODAL,gtk.MESSAGE_INFO,gtk.BUTTONS_OK,"Synchronisation erfolgreich beendet") 
  				response = mbox.run() 
  				mbox.hide() 
  				mbox.destroy() 
-				self.syncStatusLabel.set_text("no sync process (at the moment)")
 			else:
 				logging.warning("Zeitdiff zu groß/oder anderer db-Fehler")
+				self.changeSyncStatus(False,"no sync process (at the moment)")
 				mbox =  gtk.MessageDialog(None,gtk.DIALOG_MODAL,gtk.MESSAGE_INFO,gtk.BUTTONS_OK,"Zeit differiert zu viel zwischen den Systemen") 
  				response = mbox.run() 
  				mbox.hide() 
  				mbox.destroy() 
-				self.syncStatusLabel.set_text("no sync process (at the moment)")
+				self.emit("syncFinished","syncFinished")
 			
 		except:
 				logging.warning("Sync connect failed")
+				self.changeSyncStatus(False,"no sync process (at the moment)")
 				mbox =  gtk.MessageDialog(None,gtk.DIALOG_MODAL,gtk.MESSAGE_INFO,gtk.BUTTONS_OK,"Sync gescheitert. Fehler:"+str(sys.exc_info()))
  				response = mbox.run() 
  				mbox.hide() 
  				mbox.destroy() 
-				self.syncStatusLabel.set_text("no sync process (at the moment)")
+				self.server=None
+				self.emit("syncFinished","syncFinished")
+		self.server=None
 				
+
+			
 	
-	def __init__(self,db):
+	def __init__(self,db,parentwindow,port):
 		gtk.VBox.__init__(self,homogeneous=False, spacing=0)
 		
 		logging.info("Sync, init")
 		self.db=db
+		self.progress=None
+		self.server=None
+		self.port=int(port)
+		self.parentwindow=parentwindow
 		
 		#print "Sync, 2"
 		#sql = "DROP TABLE sync"
@@ -300,7 +340,7 @@ class Sync(gtk.VBox):
 		#print "Sync, 4"
 
 		
-		frame=gtk.Frame("LokalerSync-Server (Port 50503)")
+		frame=gtk.Frame("LokalerSync-Server (Port "+str(self.port)+")")
 		
 		
 		
@@ -325,7 +365,7 @@ class Sync(gtk.VBox):
 		self.syncServerStatusLabel=gtk.Label("Syncserver not running")
 		self.pack_start(self.syncServerStatusLabel, expand=False, fill=True, padding=1)		
 				
-		frame=gtk.Frame("RemoteSync-Server (Port 50503)")
+		frame=gtk.Frame("RemoteSync-Server (Port "+str(self.port)+")")
 		self.comboRemoteIP=gtk.combo_box_entry_new_text()
 		self.comboRemoteIP.append_text("192.168.0.?")
 		self.comboRemoteIP.append_text("192.168.1.?")

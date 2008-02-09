@@ -109,7 +109,7 @@ class multilistclass(hildon.Program):
 		self.sync_dialog = gtk.Dialog("Sync",None,gtk.DIALOG_MODAL | gtk.DIALOG_DESTROY_WITH_PARENT,(gtk.STOCK_OK, gtk.RESPONSE_ACCEPT))
 		
         	self.sync_dialog.set_position(gtk.WIN_POS_CENTER)
-		sync=libsync.Sync(self.db)
+		sync=libsync.Sync(self.db,self.window,50503)
 		sync.connect("syncFinished",self.sync_finished)
 		self.sync_dialog.vbox.pack_start(sync, True, True, 0)
 		self.sync_dialog.set_size_request(500,350)
