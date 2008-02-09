@@ -1,6 +1,21 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+"""
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+"""
+
 import gobject
 import time
 import string
@@ -55,12 +70,15 @@ class Sync(gtk.VBox):
 		if active==True:
 			if self.progress==None:
 				self.progress=ProgressDialog(parent=self.parentwindow)
+				self.emit("syncBeforeStart","syncBeforeStart")
+				
 				
 		else:
 			if self.progress!=None:
 				self.progress.hide()		
 				self.progress.destroy()
 				self.progress=None
+				self.emit("syncFinished","syncFinished")
 	
 	def pulse(self):
 		if self.progress!=None:
@@ -105,11 +123,41 @@ class Sync(gtk.VBox):
 		logging.info("LastSyncDatum: "+str(pcdatum)+" Jetzt "+str(int(time.time())))
 		return pcdatum
 		
+		
+	def check4commit(self,newSQL,lastdate):
+		logging.info("check4commit 1")
+		if self.concernedRows==None:
+			logging.info("check4commit Updatung concernedRows")
+			sql="SELECT pcdatum,rowid FROM logtable WHERE pcdatum>? ORDER BY pcdatum DESC"
+			self.concernedRows=self.db.ladeSQL(sql,(lastdate,))
+			
+			
+		if (self.concernedRows!=None)and(len(self.concernedRows)>0):
+			#logging.info("check4commit 2")
+			id1, pcdatum,sql, param, host, rowid = newSQL
+			
+			if len(rowid)>0:
+				for x in self.concernedRows:
+					#logging.info("check4commit 3")
+					if (x[1]==rowid):
+						if (x[0]>pcdatum):
+							logging.info("newer sync entry, ignoring old one")
+							#logging.info("check4commit 9.1")
+							return False
+						else:
+							#logging.info("check4commit 9.2")
+							return True
+							
+		#logging.info("check4commit 9.3")
+		return True
 	
-	def writeSQLTupel(self,newSQLs):
+	def writeSQLTupel(self,newSQLs,lastdate):
 		if (newSQLs==None):
 			 return
+		
+		self.concernedRows=None
 		pausenzaehler=0
+		logging.info("writeSQLTupel got "+str(len(newSQLs))+" sql tupels")
 		for newSQL in newSQLs:
 			#print ""
 			#print "SQL1: ",newSQL[1]
@@ -124,15 +172,9 @@ class Sync(gtk.VBox):
 		
 			if (len(newSQL)>2):
 				commitSQL=True
-				
+
 				if (newSQL[5]!=None)and(len(newSQL[5])>0):
-					sql="SELECT * FROM logtable WHERE rowid=? ORDER BY pcdatum DESC"
-					rows=self.db.ladeSQL(sql,(newSQL[5],))
-					if (rows!=None)and(len(rows)>0):
-						if (rows[0][1]>newSQL[1])and(len(rows[0][5])>0):
-							logging.info("newer sync entry, ignoring old one")
-							print "newer sync entry, ignoring old one"
-							commitSQL=False
+					commitSQL=self.check4commit(newSQL,lastdate)
 					
 				if (commitSQL==True):
 					self.db.speichereSQL(newSQL[2],param,commit=False,pcdatum=newSQL[1],rowid=newSQL[5])
@@ -152,8 +194,10 @@ class Sync(gtk.VBox):
 	
 	def doSync(self,sync_uuid,pcdatum,newSQLs,pcdatumjetzt):
 		#print uuid,pcdatum,newSQLs
+		#logging.info("doSync 0")
 		self.changeSyncStatus(True,"sync process running")
 		self.pulse()
+		#logging.info("doSync 1")
 		
 		while (gtk.events_pending()):
     			gtk.main_iteration();
@@ -163,11 +207,13 @@ class Sync(gtk.VBox):
 		if diff>30:
 			return -1
 		
+		logging.info("doSync read sqls")
 		sql="SELECT * FROM logtable WHERE pcdatum>?"
 		rows=self.db.ladeSQL(sql,(pcdatum,))
 		logging.info("doSync read sqls")
-		self.writeSQLTupel(newSQLs)
+		self.writeSQLTupel(newSQLs,pcdatum)
 		logging.info("doSync wrote "+str(len(newSQLs))+" sqls")
+		logging.info("doSync sending "+str(len(rows))+" sqls")
 		i=0
 		return rows
 		
@@ -198,6 +244,7 @@ class Sync(gtk.VBox):
 			
 				#save
 				self.db.speichereDirekt("startSyncServer",True)
+			
 			except:
 				s=str(sys.exc_info())
 				logging.error("libsync: could not start server. Error: "+s)
@@ -230,7 +277,6 @@ class Sync(gtk.VBox):
 		self.db.speichereSQL(sql,(sync_uuid,),log=False)
 		sql="INSERT INTO sync (syncpartner,uuid,pcdatum) VALUES (?,?,?)"
 		self.db.speichereSQL(sql,("x",str(sync_uuid),pcdatum),log=False)
-		self.emit("syncFinished","syncFinished")
 		self.pulse()
 		self.changeSyncStatus(False,"no sync process (at the moment)")
 		return (self.sync_uuid,pcdatum)
@@ -244,7 +290,6 @@ class Sync(gtk.VBox):
 		self.changeSyncStatus(True,"sync process running")
 		while (gtk.events_pending()):
     			gtk.main_iteration();
-		self.emit("syncBeforeStart","syncBeforeStart")
 
 		self.db.speichereDirekt("syncRemoteIP",self.comboRemoteIP.get_child().get_text())
 		try:
@@ -253,16 +298,18 @@ class Sync(gtk.VBox):
 			server_sync_uuid=self.server.getRemoteSyncUUID()
 			lastDate=self.getLastSyncDate(str(server_sync_uuid))
 			
-			print ("LastSyncDate: "+str(lastDate)+" Now: "+str(int(time.time())))
+			#print ("LastSyncDate: "+str(lastDate)+" Now: "+str(int(time.time())))
 		
 			sql="SELECT * FROM logtable WHERE pcdatum>?"
 			rows=self.db.ladeSQL(sql,(lastDate,))
+			
+			logging.info("loaded concerned rows")
 		
 			newSQLs=self.server.doSync(self.sync_uuid,lastDate,rows,time.time())
 		
 			logging.info("did do sync, processing sqls now")
 			if newSQLs!=-1:
-				self.writeSQLTupel(newSQLs)
+				self.writeSQLTupel(newSQLs,lastDate)
 	
 				sync_uuid, finalpcdatum=self.server.doSaveFinalTime(self.sync_uuid)
 				self.doSaveFinalTime(sync_uuid, finalpcdatum)
@@ -280,8 +327,6 @@ class Sync(gtk.VBox):
  				response = mbox.run() 
  				mbox.hide() 
  				mbox.destroy() 
-				self.emit("syncFinished","syncFinished")
-			
 		except:
 				logging.warning("Sync connect failed")
 				self.changeSyncStatus(False,"no sync process (at the moment)")
@@ -290,7 +335,6 @@ class Sync(gtk.VBox):
  				mbox.hide() 
  				mbox.destroy() 
 				self.server=None
-				self.emit("syncFinished","syncFinished")
 		self.server=None
 				
 
@@ -305,6 +349,7 @@ class Sync(gtk.VBox):
 		self.server=None
 		self.port=int(port)
 		self.parentwindow=parentwindow
+		self.concernedRows=None
 		
 		#print "Sync, 2"
 		#sql = "DROP TABLE sync"
