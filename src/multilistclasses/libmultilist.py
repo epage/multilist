@@ -64,7 +64,7 @@ import libsync
 import libbottombar
 
 version = "0.3.0"
-app_name = "Multilist"
+app_name = "multilist"
 
 		
 	

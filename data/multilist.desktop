@@ -5,5 +5,5 @@ Name=Multilist
 Exec=/usr/bin/multilist
 Icon=multilist
 Type=Application
-#X-Osso-Service=schulplaner
+#X-Osso-Service=multilist
 X-Osso-Type=application/x-executable 

@@ -11,7 +11,10 @@ setup(name='multilist',
        packages=['multilistclasses'],
        package_dir={'multilistclasses': 'src/multilistclasses'},
        data_files = [
-                    ('share/pixmaps',             ['data/multilist.png']),                
+                    ('share/icons/hicolor/26x26/hildon', ['data/low/multilist.png']),
+	      	    ('share/icons/hicolor/40x40/hildon', ['data/high/multilist.png']),
+		    ('share/icons/hicolor/scalable/hildon', ['data/scale/multilist.png']),
+                    #('share/pixmaps',             ['data/multilist.png']),                
                     ('share/applications/hildon', ['data/multilist.desktop']),           
                     ('share/dbus-1/services',     ['data/multilist.service']),      
                     ]

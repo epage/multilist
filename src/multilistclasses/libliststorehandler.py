@@ -116,15 +116,16 @@ class Liststorehandler():
 		
 		
 	def checkout_rows(self):
-		sql = "UPDATE items SET status=? WHERE list=? AND category=?"
-		self.db.speichereSQL(sql,("-1",self.selection.get_list(),self.selection.get_category()))
+		sql = "UPDATE items SET status=? WHERE list=? AND category LIKE ? AND status=?"
+		self.db.speichereSQL(sql,("-1",self.selection.get_list(),self.selection.get_category(True),"1"))
 		for i in range(len(self.liststore)):
-			self.liststore[i][1]="-1"
+			if self.liststore[i][1]=="1":
+				self.liststore[i][1]="-1"
 			
 			
 		
 		
-	def add_row(self):
+	def add_row(self,title=""):
 		#self.update_row(-1,1,"-1")
 		#for x in self.liststore:
 		#	print x[0],x[2]
@@ -132,11 +133,11 @@ class Liststorehandler():
 		import uuid
 		uid=str(uuid.uuid4())
 		sql = "INSERT INTO items (uid,list,category,status, title) VALUES (?,?,?,?,?)"
-		self.db.speichereSQL(sql,(uid,self.selection.get_list(),self.selection.get_category(),status,""),rowid=uid)
+		self.db.speichereSQL(sql,(uid,self.selection.get_list(),self.selection.get_category(),status,title),rowid=uid)
 		logging.info("Insertet row: status = "+status+" with uid "+str(uid))
 			#self.liststore[irow][0]=str(uuid.uuid4())
 			
-		self.liststore.append([uid,status,""," ","","","","","","","","",""])
+		self.liststore.append([uid,status,title," ","","","","","","","","",""])
 		self.selection.comboLists_check_for_update()
 		#	if (irow>-1):
 		#		self.liststore[irow][icol]=new_text

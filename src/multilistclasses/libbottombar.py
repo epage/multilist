@@ -36,7 +36,22 @@ class Bottombar(gtk.HBox):
 
 		
 	def new_item(self,widget=None,data1=None,data2=None):
-		self.view.liststorehandler.add_row()
+		dialog = gtk.Dialog("New item name:",None,gtk.DIALOG_MODAL | gtk.DIALOG_DESTROY_WITH_PARENT,(gtk.STOCK_CANCEL, gtk.RESPONSE_REJECT,gtk.STOCK_OK, gtk.RESPONSE_ACCEPT))
+		
+        	dialog.set_position(gtk.WIN_POS_CENTER)
+		entryKlasse=gtk.Entry()
+		entryKlasse.set_text("")
+		
+		dialog.vbox.pack_start(entryKlasse, True, True, 0)
+		
+  		dialog.vbox.show_all()
+		#dialog.set_size_request(400,300)
+
+		if dialog.run() == gtk.RESPONSE_ACCEPT:
+			#logging.info("new category name "+entryKlasse.get_text())
+			#self.view.liststorehandler.rename_category(entryKlasse.get_text())
+			self.view.liststorehandler.add_row(entryKlasse.get_text())
+		dialog.destroy()
 
 		
 	def del_item(self,widget=None,data1=None,data2=None):
@@ -62,10 +77,11 @@ class Bottombar(gtk.HBox):
  		mbox.hide() 
  		mbox.destroy() 
 		if response==gtk.RESPONSE_YES:
-			n=len(self.view.liststorehandler.get_liststore())
-			for i in range(n):
-				self.view.liststorehandler.checkout_rows()
-				#print i
+			self.view.liststorehandler.checkout_rows()
+			#n=len(self.view.liststorehandler.get_liststore())
+			#for i in range(n):
+			#	self.view.liststorehandler.checkout_rows()
+			#	#print i
 			
 	def search_list(self,widget=None,data1=None,data2=None):
 		self.view.liststorehandler.get_liststore(widget.get_text())
