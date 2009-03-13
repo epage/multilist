@@ -46,7 +46,7 @@ msgstr "Новый список"
 #
 # File: src/multilistclasses/libbottombar.py, line: 141
 msgid "New item"
-msgstr "Добавить элемент"
+msgstr "Добавить"
 #
 # File: src/multilistclasses/libbottombar.py, line: 148
 msgid "Search:"
@@ -137,7 +137,7 @@ msgstr "  Категория:"
 #
 # File: src/multilistclasses/libselection.py, line: 181
 msgid "  View:"
-msgstr "  Смотреть:"
+msgstr "  Вид:"
 #
 # File: src/multilistclasses/libselection.py, line: 184
 msgid "All"
@@ -145,7 +145,7 @@ msgstr "Все"
 #
 # File: src/multilistclasses/libselection.py, line: 186
 msgid "Active"
-msgstr "Используемые"
+msgstr "Исп."
 #
 # File: src/multilistclasses/libsqldialog.py, line: 54
 msgid "SQL History (the past two days):"

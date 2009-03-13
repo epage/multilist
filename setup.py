@@ -6,7 +6,7 @@
 from distutils.core import setup  
 
 setup(name='multilist',
-       version='0.3.0',
+       version='0.3.1',
        scripts=['src/multilist'],
        packages=['multilistclasses'],
        package_dir={'multilistclasses': 'src/multilistclasses'},

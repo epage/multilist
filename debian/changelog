@@ -1,8 +1,8 @@
 multilist (0.3.1) unstable; urgency=low
 
-  * I18N
+  * I18N, extract de.po, add ru.po.
 
- -- Nikolay Logvinov <NLogvinov@gmail.com> Fri, 13 Mar 2009 13:42:23 +0300
+ -- Nikolay Logvinov <NLogvinov@gmail.com>  Fri, 13 Mar 2009 13:42:23 +0300
 
 multilist (0.3.0) unstable; urgency=low
 
