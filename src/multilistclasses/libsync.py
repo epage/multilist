@@ -41,14 +41,14 @@ class ProgressDialog(gtk.Dialog):
 		#self.progressbar.pulse()
 		pass
 	
-	def __init__(self,title="Sync process", parent=None):
+	def __init__(self,title=_("Sync process"), parent=None):
 		gtk.Dialog.__init__(self,title,parent,gtk.DIALOG_MODAL | gtk.DIALOG_DESTROY_WITH_PARENT,())
 		
 		logging.info("ProgressDialog, init")
 		
-		label=gtk.Label("Sync process running...please wait")
+		label=gtk.Label(_("Sync process running...please wait"))
 		self.vbox.pack_start(label, True, True, 0)
-		label=gtk.Label("(this can take some minutes)")
+		label=gtk.Label(_("(this can take some minutes)"))
 		self.vbox.pack_start(label, True, True, 0)
 		
 		#self.progressbar=gtk.ProgressBar()
@@ -88,7 +88,7 @@ class Sync(gtk.VBox):
 		
 	
 	def getUeberblickBox(self):
-		frame=gtk.Frame("Abfrage")
+		frame=gtk.Frame(_("Query"))
 		return frame
 			
 	def handleRPC(self):
@@ -195,7 +195,7 @@ class Sync(gtk.VBox):
 	def doSync(self,sync_uuid,pcdatum,newSQLs,pcdatumjetzt):
 		#print uuid,pcdatum,newSQLs
 		#logging.info("doSync 0")
-		self.changeSyncStatus(True,"sync process running")
+		self.changeSyncStatus(True,_("sync process running"))
 		self.pulse()
 		#logging.info("doSync 1")
 		
@@ -240,7 +240,7 @@ class Sync(gtk.VBox):
 				self.poll=select.poll()
 				self.poll.register(self.rpcserver.fileno())
 				gobject.timeout_add(1000, self.handleRPC)
-				self.syncServerStatusLabel.set_text("Syncserver running...")
+				self.syncServerStatusLabel.set_text(_("Syncserver running..."))
 			
 				#save
 				self.db.speichereDirekt("startSyncServer",True)
@@ -248,7 +248,7 @@ class Sync(gtk.VBox):
 			except:
 				s=str(sys.exc_info())
 				logging.error("libsync: could not start server. Error: "+s)
-				mbox=gtk.MessageDialog(None,gtk.DIALOG_MODAL,gtk.MESSAGE_ERROR,gtk.BUTTONS_OK,"Konnte Sync-Server nicht starten. Bitte IP und Port überprüfen.") #gtk.DIALOG_MODAL
+				mbox=gtk.MessageDialog(None,gtk.DIALOG_MODAL,gtk.MESSAGE_ERROR,gtk.BUTTONS_OK,_("Sync server could not start. Please check IP and port.")) #gtk.DIALOG_MODAL
 				mbox.set_modal(False)
 				response=mbox.run() 
  				mbox.hide() 
@@ -261,7 +261,7 @@ class Sync(gtk.VBox):
 				del self.rpcserver	
 			except:
 				pass
-			self.syncServerStatusLabel.set_text("Syncserver not running...")
+			self.syncServerStatusLabel.set_text(_("Syncserver not running..."))
 			#save
 			self.db.speichereDirekt("startSyncServer",False)
 		
@@ -278,7 +278,7 @@ class Sync(gtk.VBox):
 		sql="INSERT INTO sync (syncpartner,uuid,pcdatum) VALUES (?,?,?)"
 		self.db.speichereSQL(sql,("x",str(sync_uuid),pcdatum),log=False)
 		self.pulse()
-		self.changeSyncStatus(False,"no sync process (at the moment)")
+		self.changeSyncStatus(False,_("no sync process (at the moment)"))
 		return (self.sync_uuid,pcdatum)
 		
 	
@@ -287,7 +287,7 @@ class Sync(gtk.VBox):
 		#sql="DELETE FROM logtable WHERE sql LIKE externeStundenplanung"
 		#self.db.speichereSQL(sql)
 		
-		self.changeSyncStatus(True,"sync process running")
+		self.changeSyncStatus(True,_("sync process running"))
 		while (gtk.events_pending()):
     			gtk.main_iteration();
 
@@ -314,23 +314,23 @@ class Sync(gtk.VBox):
 				sync_uuid, finalpcdatum=self.server.doSaveFinalTime(self.sync_uuid)
 				self.doSaveFinalTime(sync_uuid, finalpcdatum)
 			
-				self.changeSyncStatus(False,"no sync process (at the moment)")
+				self.changeSyncStatus(False,_("no sync process (at the moment)"))
 				
-				mbox =  gtk.MessageDialog(None,gtk.DIALOG_MODAL,gtk.MESSAGE_INFO,gtk.BUTTONS_OK,"Synchronisation erfolgreich beendet") 
+				mbox =  gtk.MessageDialog(None,gtk.DIALOG_MODAL,gtk.MESSAGE_INFO,gtk.BUTTONS_OK,_("Synchronization successfully completed"))
  				response = mbox.run() 
  				mbox.hide() 
  				mbox.destroy() 
 			else:
 				logging.warning("Zeitdiff zu groß/oder anderer db-Fehler")
-				self.changeSyncStatus(False,"no sync process (at the moment)")
-				mbox =  gtk.MessageDialog(None,gtk.DIALOG_MODAL,gtk.MESSAGE_INFO,gtk.BUTTONS_OK,"Zeit differiert zu viel zwischen den Systemen") 
+				self.changeSyncStatus(False,_("no sync process (at the moment)"))
+				mbox =  gtk.MessageDialog(None,gtk.DIALOG_MODAL,gtk.MESSAGE_INFO,gtk.BUTTONS_OK,_("The clocks are not synchronized between stations"))
  				response = mbox.run() 
  				mbox.hide() 
  				mbox.destroy() 
 		except:
 				logging.warning("Sync connect failed")
-				self.changeSyncStatus(False,"no sync process (at the moment)")
-				mbox =  gtk.MessageDialog(None,gtk.DIALOG_MODAL,gtk.MESSAGE_INFO,gtk.BUTTONS_OK,"Sync gescheitert. Fehler:"+str(sys.exc_info()))
+				self.changeSyncStatus(False,_("no sync process (at the moment)"))
+				mbox =  gtk.MessageDialog(None,gtk.DIALOG_MODAL,gtk.MESSAGE_INFO,gtk.BUTTONS_OK,_("Sync failed, reason: ")+unicode(sys.exc_info()[1][1]))
  				response = mbox.run() 
  				mbox.hide() 
  				mbox.destroy() 
@@ -367,6 +367,7 @@ class Sync(gtk.VBox):
 		if (rows==None)or(len(rows)!=1):
 			sql="DELETE FROM sync WHERE syncpartner=?"
 			self.db.speichereSQL(sql,("self",),log=False)
+
 			#uuid1=uuid()
 			#print "Sync, 3b"
 			
@@ -385,8 +386,8 @@ class Sync(gtk.VBox):
 		#print "Sync, 4"
 
 		
-		frame=gtk.Frame("LokalerSync-Server (Port "+str(self.port)+")")
-		
+		frame=gtk.Frame(_("Local SyncServer (port ")+str(self.port)+")")
+	
 		
 		
 		self.comboIP=gtk.combo_box_entry_new_text()
@@ -403,24 +404,24 @@ class Sync(gtk.VBox):
 		#print "Sync, 4e"
 		
 		frame.add(self.comboIP)
-		serverbutton=gtk.ToggleButton("SyncServer starten")
+		serverbutton=gtk.ToggleButton(_("Start SyncServer"))
 		serverbutton.connect("clicked",self.startServer,(None,))
 		self.pack_start(frame, expand=False, fill=True, padding=1)
 		self.pack_start(serverbutton, expand=False, fill=True, padding=1)
-		self.syncServerStatusLabel=gtk.Label("Syncserver not running")
+		self.syncServerStatusLabel=gtk.Label(_("Syncserver not running"))
 		self.pack_start(self.syncServerStatusLabel, expand=False, fill=True, padding=1)		
 				
-		frame=gtk.Frame("RemoteSync-Server (Port "+str(self.port)+")")
+		frame=gtk.Frame(_("RemoteSync-Server (Port ")+str(self.port)+")")
 		self.comboRemoteIP=gtk.combo_box_entry_new_text()
 		self.comboRemoteIP.append_text("192.168.0.?")
 		self.comboRemoteIP.append_text("192.168.1.?")
 		self.comboRemoteIP.append_text("192.168.176.?")
 		frame.add(self.comboRemoteIP)
-		syncbutton=gtk.Button("Verbinde zu Remote-SyncServer")
+		syncbutton=gtk.Button(_("Connect to remote SyncServer"))
 		syncbutton.connect("clicked",self.syncButton,(None,))
 		self.pack_start(frame, expand=False, fill=True, padding=1)
 		self.pack_start(syncbutton, expand=False, fill=True, padding=1)
-		self.syncStatusLabel=gtk.Label("no sync process (at the moment)")
+		self.syncStatusLabel=gtk.Label(_("no sync process (at the moment)"))
 		self.pack_start(self.syncStatusLabel, expand=False, fill=True, padding=1)
 
 

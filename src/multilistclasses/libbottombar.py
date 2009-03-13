@@ -36,7 +36,7 @@ class Bottombar(gtk.HBox):
 
 		
 	def new_item(self,widget=None,data1=None,data2=None):
-		dialog = gtk.Dialog("New item name:",None,gtk.DIALOG_MODAL | gtk.DIALOG_DESTROY_WITH_PARENT,(gtk.STOCK_CANCEL, gtk.RESPONSE_REJECT,gtk.STOCK_OK, gtk.RESPONSE_ACCEPT))
+		dialog = gtk.Dialog(_("New item name:"),None,gtk.DIALOG_MODAL | gtk.DIALOG_DESTROY_WITH_PARENT,(gtk.STOCK_CANCEL, gtk.RESPONSE_REJECT,gtk.STOCK_OK, gtk.RESPONSE_ACCEPT))
 		
         	dialog.set_position(gtk.WIN_POS_CENTER)
 		entryKlasse=gtk.Entry()
@@ -57,14 +57,14 @@ class Bottombar(gtk.HBox):
 	def del_item(self,widget=None,data1=None,data2=None):
 		path, col = self.view.treeview.get_cursor()
 		if path!=None:
-			mbox=gtk.MessageDialog(None,gtk.DIALOG_MODAL,gtk.MESSAGE_QUESTION,gtk.BUTTONS_YES_NO,"Delete current item?") 
+			mbox=gtk.MessageDialog(None,gtk.DIALOG_MODAL,gtk.MESSAGE_QUESTION,gtk.BUTTONS_YES_NO,_("Delete current item?")) 
 			response=mbox.run() 
  			mbox.hide() 
  			mbox.destroy() 
 			if response==gtk.RESPONSE_YES:
 				self.view.del_active_row()
 		else:
-			mbox=gtk.MessageDialog(None,gtk.DIALOG_MODAL,gtk.MESSAGE_ERROR,gtk.BUTTONS_OK,"No item selected!") 
+			mbox=gtk.MessageDialog(None,gtk.DIALOG_MODAL,gtk.MESSAGE_ERROR,gtk.BUTTONS_OK,_("No item selected!")) 
 			response=mbox.run() 
  			mbox.hide() 
  			mbox.destroy() 			
@@ -72,7 +72,7 @@ class Bottombar(gtk.HBox):
 		
 	def checkout_items(self,widget=None,data1=None,data2=None):
 		#self.view.del_active_row()
-		mbox=gtk.MessageDialog(None,gtk.DIALOG_MODAL,gtk.MESSAGE_QUESTION,gtk.BUTTONS_YES_NO,"Really checlout all items?") 
+		mbox=gtk.MessageDialog(None,gtk.DIALOG_MODAL,gtk.MESSAGE_QUESTION,gtk.BUTTONS_YES_NO,(_("Really checkout all items?"))) 
 		response=mbox.run() 
  		mbox.hide() 
  		mbox.destroy() 
@@ -88,7 +88,7 @@ class Bottombar(gtk.HBox):
 			
 	
 	def rename_category(self,widget=None,data1=None,data2=None):
-		dialog = gtk.Dialog("New categrory name:",None,gtk.DIALOG_MODAL | gtk.DIALOG_DESTROY_WITH_PARENT,(gtk.STOCK_CANCEL, gtk.RESPONSE_REJECT,gtk.STOCK_OK, gtk.RESPONSE_ACCEPT))
+		dialog = gtk.Dialog(_("New category name:"),None,gtk.DIALOG_MODAL | gtk.DIALOG_DESTROY_WITH_PARENT,(gtk.STOCK_CANCEL, gtk.RESPONSE_REJECT,gtk.STOCK_OK, gtk.RESPONSE_ACCEPT))
 		
         	dialog.set_position(gtk.WIN_POS_CENTER)
 		entryKlasse=gtk.Entry()
@@ -109,7 +109,7 @@ class Bottombar(gtk.HBox):
 		
 		
 	def rename_list(self,widget=None,data1=None,data2=None):
-		dialog = gtk.Dialog("New list name:",None,gtk.DIALOG_MODAL | gtk.DIALOG_DESTROY_WITH_PARENT,(gtk.STOCK_CANCEL, gtk.RESPONSE_REJECT,gtk.STOCK_OK, gtk.RESPONSE_ACCEPT))
+		dialog = gtk.Dialog(_("New list name:"),None,gtk.DIALOG_MODAL | gtk.DIALOG_DESTROY_WITH_PARENT,(gtk.STOCK_CANCEL, gtk.RESPONSE_REJECT,gtk.STOCK_OK, gtk.RESPONSE_ACCEPT))
 		
         	dialog.set_position(gtk.WIN_POS_CENTER)
 		entryKlasse=gtk.Entry()
@@ -138,14 +138,14 @@ class Bottombar(gtk.HBox):
 		logging.info("libBottomBar, init")
 			
 		
-		button=gtk.Button("New item")
+		button=gtk.Button(_("New item"))
 		button.connect("clicked",self.new_item)
 		self.pack_start(button, expand=False, fill=True, padding=0)
 		
 		label=gtk.Label("  ")
 		self.pack_start(label, expand=True, fill=True, padding=0)
 		
-		label=gtk.Label("Search:")
+		label=gtk.Label(_("Search:"))
 		self.pack_start(label, expand=False, fill=True, padding=0)
 		searchEntry=gtk.Entry()
 		searchEntry.connect("changed",self.search_list)
@@ -154,11 +154,11 @@ class Bottombar(gtk.HBox):
 		label=gtk.Label("  ")
 		self.pack_start(label, expand=True, fill=True, padding=0)
 		
-		button=gtk.Button("Checkout all items")
+		button=gtk.Button(_("Checkout all items"))
 		button.connect("clicked",self.checkout_items)
 		self.pack_start(button, expand=False, fill=True, padding=0)
 		
-		button=gtk.Button("Del item")
+		button=gtk.Button(_("Del item"))
 		button.connect("clicked",self.del_item)
 		self.pack_start(button, expand=False, fill=True, padding=0)
 		

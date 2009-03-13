@@ -60,7 +60,7 @@ class Columns_dialog(gtk.VBox):
 		#self.pack_start(serverbutton, expand=False, fill=True, padding=1)
 		#print "x1"
 		
-		frame=gtk.Frame("Columns")
+		frame=gtk.Frame(_("Columns"))
 		self.framebox=gtk.VBox(homogeneous=False, spacing=0)
 		
 		self.scrolled_window = gtk.ScrolledWindow()

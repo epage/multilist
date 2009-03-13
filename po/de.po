@@ -1,0 +1,250 @@
+# German translations for multilist package
+# German messages for multilist.
+# Copyright (C) 2009 THE multilist'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the multilist package.
+# Christoph Würstle <chris@axique.de>, 2009.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: multilist\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2009-03-13 15:05+0300\n"
+"PO-Revision-Date: 2009-03-13 13:07+0300\n"
+"Last-Translator: Christoph Würstle <chris@axique.de>\n"
+"Language-Team: German\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+#
+# File: src/multilist, line: 44
+msgid "Multilist is already running. Start anyway? (Could result in db problems!)"
+msgstr ""
+#
+# File: src/multilistclasses/libbottombar.py, line: 39
+msgid "New item name:"
+msgstr ""
+#
+# File: src/multilistclasses/libbottombar.py, line: 60
+msgid "Delete current item?"
+msgstr ""
+#
+# File: src/multilistclasses/libbottombar.py, line: 67
+msgid "No item selected!"
+msgstr ""
+#
+# File: src/multilistclasses/libbottombar.py, line: 75
+msgid "Really checkout all items?"
+msgstr ""
+#
+# File: src/multilistclasses/libbottombar.py, line: 91
+msgid "New category name:"
+msgstr ""
+#
+# File: src/multilistclasses/libbottombar.py, line: 112
+msgid "New list name:"
+msgstr ""
+#
+# File: src/multilistclasses/libbottombar.py, line: 141
+msgid "New item"
+msgstr ""
+#
+# File: src/multilistclasses/libbottombar.py, line: 148
+msgid "Search:"
+msgstr ""
+#
+# File: src/multilistclasses/libbottombar.py, line: 157
+msgid "Checkout all items"
+msgstr ""
+#
+# File: src/multilistclasses/libbottombar.py, line: 161
+msgid "Del item"
+msgstr ""
+#
+# File: src/multilistclasses/libmultilist.py, line: 109
+msgid "Sync"
+msgstr ""
+#
+# File: src/multilistclasses/libmultilist.py, line: 128
+# File: src/multilistclasses/libmultilist.py, line: 246
+msgid "Choose columns"
+msgstr ""
+#
+# File: src/multilistclasses/libmultilist.py, line: 215
+msgid "Choose database file"
+msgstr "DB auswählen"
+#
+# File: src/multilistclasses/libmultilist.py, line: 219
+msgid "SQL history"
+msgstr "SQL History anschauen"
+#
+# File: src/multilistclasses/libmultilist.py, line: 223
+msgid "SQL optimize"
+msgstr "SQL optimieren"
+#
+# File: src/multilistclasses/libmultilist.py, line: 227
+msgid "Sync items"
+msgstr ""
+#
+# File: src/multilistclasses/libmultilist.py, line: 233
+msgid "Quit"
+msgstr "Beenden"
+#
+# File: src/multilistclasses/libmultilist.py, line: 238
+msgid "File"
+msgstr "Datei"
+#
+# File: src/multilistclasses/libmultilist.py, line: 250
+msgid "Rename Category"
+msgstr ""
+#
+# File: src/multilistclasses/libmultilist.py, line: 254
+msgid "Rename List"
+msgstr ""
+#
+# File: src/multilistclasses/libmultilist.py, line: 258
+msgid "Tools"
+msgstr ""
+#
+# File: src/multilistclasses/libmultilist.py, line: 264
+msgid "About"
+msgstr "Über"
+#
+# File: src/multilistclasses/libmultilist.py, line: 268
+msgid "Help"
+msgstr "Hilfe"
+#
+# File: src/multilistclasses/libmultilist.py, line: 360
+msgid "Select SQL export file"
+msgstr "Wähle SQL-Export-Datei"
+#
+# File: src/multilistclasses/libmultilist.py, line: 390
+msgid "Choose your database file"
+msgstr "Wähle Datenbank-Datei"
+#
+# File: src/multilistclasses/libselection.py, line: 66
+# File: src/multilistclasses/libselection.py, line: 69
+# File: src/multilistclasses/libselection.py, line: 129
+msgid "all"
+msgstr ""
+#
+# File: src/multilistclasses/libselection.py, line: 164
+msgid "List:"
+msgstr ""
+#
+# File: src/multilistclasses/libselection.py, line: 171
+msgid "  Category:"
+msgstr ""
+#
+# File: src/multilistclasses/libselection.py, line: 181
+msgid "  View:"
+msgstr ""
+#
+# File: src/multilistclasses/libselection.py, line: 184
+msgid "All"
+msgstr ""
+#
+# File: src/multilistclasses/libselection.py, line: 186
+msgid "Active"
+msgstr ""
+#
+# File: src/multilistclasses/libsqldialog.py, line: 54
+msgid "SQL History (the past two days):"
+msgstr "SQL History (der letzten 2 Tage (max. 50)):"
+#
+# File: src/multilistclasses/libsqldialog.py, line: 57
+msgid "Export"
+msgstr ""
+#
+# File: src/multilistclasses/libsqldialog.py, line: 73
+msgid "Date"
+msgstr "Datum"
+#
+# File: src/multilistclasses/libsqldialog.py, line: 74
+msgid "SQL"
+msgstr ""
+#
+# File: src/multilistclasses/libsqldialog.py, line: 75
+msgid "Parameter"
+msgstr ""
+#
+# File: src/multilistclasses/libsqldialog.py, line: 116
+msgid " (Reduced parameter) "
+msgstr " (Parameter gekürzt) "
+#
+# File: src/multilistclasses/libsync.py, line: 44
+msgid "Sync process"
+msgstr ""
+#
+# File: src/multilistclasses/libsync.py, line: 49
+msgid "Sync process running...please wait"
+msgstr ""
+#
+# File: src/multilistclasses/libsync.py, line: 51
+msgid "(this can take some minutes)"
+msgstr ""
+#
+# File: src/multilistclasses/libsync.py, line: 91
+msgid "Query"
+msgstr "Abfrage"
+#
+# File: src/multilistclasses/libsync.py, line: 198
+# File: src/multilistclasses/libsync.py, line: 290
+msgid "sync process running"
+msgstr ""
+#
+# File: src/multilistclasses/libsync.py, line: 243
+msgid "Syncserver running..."
+msgstr ""
+#
+# File: src/multilistclasses/libsync.py, line: 251
+msgid "Sync server could not start. Please check IP and port."
+msgstr "Konnte Sync-Server nicht starten. Bitte IP und Port überprüfen."
+#
+# File: src/multilistclasses/libsync.py, line: 264
+msgid "Syncserver not running..."
+msgstr ""
+#
+# File: src/multilistclasses/libsync.py, line: 281
+# File: src/multilistclasses/libsync.py, line: 317
+# File: src/multilistclasses/libsync.py, line: 325
+# File: src/multilistclasses/libsync.py, line: 332
+# File: src/multilistclasses/libsync.py, line: 424
+msgid "no sync process (at the moment)"
+msgstr ""
+#
+# File: src/multilistclasses/libsync.py, line: 319
+msgid "Synchronization successfully completed"
+msgstr "Synchronisation erfolgreich beendet"
+#
+# File: src/multilistclasses/libsync.py, line: 326
+msgid "The clocks are not synchronized between stations"
+msgstr "Zeit differiert zu viel zwischen den Systemen"
+#
+# File: src/multilistclasses/libsync.py, line: 333
+msgid "Sync failed, reason: "
+msgstr "Sync gescheitert. Fehler:"
+#
+# File: src/multilistclasses/libsync.py, line: 389
+msgid "Local SyncServer (port "
+msgstr "LokalerSync-Server (Port "
+#
+# File: src/multilistclasses/libsync.py, line: 407
+msgid "Start SyncServer"
+msgstr "SyncServer starten"
+#
+# File: src/multilistclasses/libsync.py, line: 411
+msgid "Syncserver not running"
+msgstr ""
+#
+# File: src/multilistclasses/libsync.py, line: 414
+msgid "RemoteSync-Server (Port "
+msgstr ""
+#
+# File: src/multilistclasses/libsync.py, line: 420
+msgid "Connect to remote SyncServer"
+msgstr "Verbinde zu Remote-SyncServer"
+#
+# File: src/multilistclasses/libview.py, line: 63
+msgid "Columns"
+msgstr ""

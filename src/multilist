@@ -22,6 +22,13 @@
 
 import os
 import sys
+
+##
+## I18N
+##
+import locale
+import gettext
+gettext.install('multilist', unicode=1)
 			
 if __name__ == "__main__":
 	
@@ -34,7 +41,7 @@ if __name__ == "__main__":
 	except OSError:
    		## Failed: another instance is running
 		
-		mbox=gtk.MessageDialog(None,gtk.DIALOG_MODAL,gtk.MESSAGE_ERROR,gtk.BUTTONS_YES_NO,"Multilist already runnging.Start anyway? (Could result in db problems!)") 
+		mbox=gtk.MessageDialog(None,gtk.DIALOG_MODAL,gtk.MESSAGE_ERROR,gtk.BUTTONS_YES_NO,_("Multilist is already running. Start anyway? (Could result in db problems!)")) 
 		response=mbox.run() 
  		mbox.hide() 
  		mbox.destroy() 

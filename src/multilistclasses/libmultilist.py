@@ -106,7 +106,7 @@ class multilistclass(hildon.Program):
 		
 	
 	def prepare_sync_dialog(self):
-		self.sync_dialog = gtk.Dialog("Sync",None,gtk.DIALOG_MODAL | gtk.DIALOG_DESTROY_WITH_PARENT,(gtk.STOCK_OK, gtk.RESPONSE_ACCEPT))
+		self.sync_dialog = gtk.Dialog(_("Sync"),None,gtk.DIALOG_MODAL | gtk.DIALOG_DESTROY_WITH_PARENT,(gtk.STOCK_OK, gtk.RESPONSE_ACCEPT))
 		
         	self.sync_dialog.set_position(gtk.WIN_POS_CENTER)
 		sync=libsync.Sync(self.db,self.window,50503)
@@ -125,7 +125,7 @@ class multilistclass(hildon.Program):
 
 
 	def show_columns_dialog(self,widget=None,data=None):
-		col_dialog = gtk.Dialog("Choose columns",self.window,gtk.DIALOG_MODAL | gtk.DIALOG_DESTROY_WITH_PARENT, (gtk.STOCK_CANCEL, gtk.RESPONSE_REJECT, gtk.STOCK_OK, gtk.RESPONSE_ACCEPT))
+		col_dialog = gtk.Dialog(_("Choose columns"),self.window,gtk.DIALOG_MODAL | gtk.DIALOG_DESTROY_WITH_PARENT, (gtk.STOCK_CANCEL, gtk.RESPONSE_REJECT, gtk.STOCK_OK, gtk.RESPONSE_ACCEPT))
 		
         	col_dialog.set_position(gtk.WIN_POS_CENTER)
 		cols=libview.Columns_dialog(self.db,self.liststorehandler)
@@ -212,30 +212,30 @@ class multilistclass(hildon.Program):
 		#Menue
 		dateimenu = gtk.Menu()
 		
-		menu_items = gtk.MenuItem("DB auswählen")
+		menu_items = gtk.MenuItem(_("Choose database file"))
 		dateimenu.append(menu_items)
 		menu_items.connect("activate", self.select_db_dialog, None)
 		
-		menu_items = gtk.MenuItem("SQL History anschauen")
+		menu_items = gtk.MenuItem(_("SQL history"))
 		dateimenu.append(menu_items)
 		menu_items.connect("activate", self.view_sql_history, None)
 		
-		menu_items = gtk.MenuItem("SQL optimieren")
+		menu_items = gtk.MenuItem(_("SQL optimize"))
 		dateimenu.append(menu_items)
 		menu_items.connect("activate", self.optimizeSQL, None)
 		
-		menu_items = gtk.MenuItem("Sync items")
+		menu_items = gtk.MenuItem(_("Sync items"))
 		self.prepare_sync_dialog()
 		dateimenu.append(menu_items)
 		menu_items.connect("activate", self.sync_notes, None)
 		
 		
-		menu_items = gtk.MenuItem("Beenden")
+		menu_items = gtk.MenuItem(_("Quit"))
 		dateimenu.append(menu_items)
 		menu_items.connect("activate", self.destroy, None)
 		#menu_items.show()
 		
-		datei_menu = gtk.MenuItem("Datei")
+		datei_menu = gtk.MenuItem(_("File"))
 		datei_menu.show()
 		datei_menu.set_submenu(dateimenu)
 		
@@ -243,29 +243,29 @@ class multilistclass(hildon.Program):
 		toolsmenu = gtk.Menu()
 		
 		
-		menu_items = gtk.MenuItem("Choose columns")
+		menu_items = gtk.MenuItem(_("Choose columns"))
 		toolsmenu.append(menu_items)
 		menu_items.connect("activate", self.show_columns_dialog, None)
 		
-		menu_items = gtk.MenuItem("Rename Category")
+		menu_items = gtk.MenuItem(_("Rename Category"))
 		toolsmenu.append(menu_items)
 		menu_items.connect("activate", self.bottombar.rename_category, None)
 		
-		menu_items = gtk.MenuItem("Rename List")
+		menu_items = gtk.MenuItem(_("Rename List"))
 		toolsmenu.append(menu_items)
 		menu_items.connect("activate", self.bottombar.rename_list, None)
 		
-		tools_menu = gtk.MenuItem("Tools")
+		tools_menu = gtk.MenuItem(_("Tools"))
 		tools_menu.show()
 		tools_menu.set_submenu(toolsmenu)
 		
 		
 		hilfemenu = gtk.Menu()
-		menu_items = gtk.MenuItem("Über")
+		menu_items = gtk.MenuItem(_("About"))
 		hilfemenu.append(menu_items)
 		menu_items.connect("activate", self.show_about, None)
 		
-		hilfe_menu = gtk.MenuItem("Hilfe")
+		hilfe_menu = gtk.MenuItem(_("Help"))
 		hilfe_menu.show()
 		hilfe_menu.set_submenu(hilfemenu)
 		
@@ -357,7 +357,7 @@ class multilistclass(hildon.Program):
 				#dlg = hildon.FileChooserDialog(parent = self.window, action = gtk.FILE_CHOOSER_ACTION_SAVE)
 				dlg=hildon.FileChooserDialog(self.window, gtk.FILE_CHOOSER_ACTION_SAVE)
 			
-			dlg.set_title("Wähle SQL-Export-Datei")
+			dlg.set_title(_("Select SQL export file"))
         		if dlg.run() == gtk.RESPONSE_OK:
 				fileName = dlg.get_filename()
 				dlg.destroy()
@@ -387,7 +387,7 @@ class multilistclass(hildon.Program):
         	
         	if self.db.ladeDirekt('datenbank'):
 			dlg.set_filename(self.db.ladeDirekt('datenbank'))
-		dlg.set_title("Wähle Datenbank-Datei")
+		dlg.set_title(_("Choose your database file"))
         	if dlg.run() == gtk.RESPONSE_OK:
 			fileName = dlg.get_filename()
 			self.db.speichereDirekt('datenbank',fileName)

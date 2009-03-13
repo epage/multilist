@@ -63,10 +63,10 @@ class Selection(gtk.HBox):
 		sql="SELECT DISTINCT category FROM items WHERE list=? ORDER BY category"
 		rows=self.db.ladeSQL(sql,(self.get_list(),))
 		
-		self.comboCategory.append_text("all")
+		self.comboCategory.append_text(_("all"))
 		if ((rows!=None)and(len(rows)>0)):
 			for row in rows:
-				if (row[0]!="all"):
+				if (row[0]!=_("all")):
 					self.comboCategory.append_text(row[0])
 		
 		s=self.db.ladeDirekt("comboCategoryText"+self.comboList.get_child().get_text())
@@ -126,7 +126,7 @@ class Selection(gtk.HBox):
 	
 	def get_category(self,select=False):
 		s=self.comboCategory.get_child().get_text()
-		if s=="all":
+		if s==_("all"):
 			if (select==False):
 				return "undefined"
 			else:
@@ -161,14 +161,14 @@ class Selection(gtk.HBox):
 		logging.info("libSelection, init")
 			
 		
-		label=gtk.Label("List:")
+		label=gtk.Label(_("List:"))
 		self.pack_start(label, expand=False, fill=True, padding=0)
 		
 		self.comboList = gtk.combo_box_entry_new_text()
 		self.comboList.set_size_request(180,-1)
 		self.pack_start(self.comboList, expand=False, fill=True, padding=0)
 			
-		label=gtk.Label("  Category:")
+		label=gtk.Label(_("  Category:"))
 		self.pack_start(label, expand=False, fill=True, padding=0)
 		
 		self.comboCategory = gtk.combo_box_entry_new_text()
@@ -178,12 +178,12 @@ class Selection(gtk.HBox):
 		self.comboList.connect("changed", self.comboList_changed, None)
 		self.comboCategory.connect("changed", self.comboCategory_changed, None)
 		
-		label=gtk.Label("  View:")
+		label=gtk.Label(_("  View:"))
 		self.pack_start(label, expand=False, fill=True, padding=0)
 		
-		self.radio_all=gtk.RadioButton(group=None, label="All", use_underline=True)
+		self.radio_all=gtk.RadioButton(group=None, label=_("All"), use_underline=True)
 		self.pack_start(self.radio_all, expand=False, fill=True, padding=0)
-		self.radio_active=gtk.RadioButton(group=self.radio_all, label="Active", use_underline=True)
+		self.radio_active=gtk.RadioButton(group=self.radio_all, label=_("Active"), use_underline=True)
 		self.pack_start(self.radio_active, expand=False, fill=True, padding=0)
 		self.radio_all.connect("toggled",self.radioActive_changed, None)
 		

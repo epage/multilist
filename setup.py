@@ -17,5 +17,8 @@ setup(name='multilist',
                     #('share/pixmaps',             ['data/multilist.png']),                
                     ('share/applications/hildon', ['data/multilist.desktop']),           
                     ('share/dbus-1/services',     ['data/multilist.service']),      
+                    # I18N
+                    ('share/locale/de/LC_MESSAGES', ['locale/de/LC_MESSAGES/multilist.mo']),
+                    ('share/locale/ru/LC_MESSAGES', ['locale/ru/LC_MESSAGES/multilist.mo']),
                     ]
       ) 

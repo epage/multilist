@@ -51,10 +51,10 @@ class sqlDialog(gtk.Dialog):
 		
 		logging.info("sqldialog, init")
 		
-		gtk.Dialog.__init__(self,"SQL History (der letzten 2 Tage (max. 50)):",None,gtk.DIALOG_MODAL | gtk.DIALOG_DESTROY_WITH_PARENT,(gtk.STOCK_OK, gtk.RESPONSE_ACCEPT))
+		gtk.Dialog.__init__(self,_("SQL History (the past two days):"),None,gtk.DIALOG_MODAL | gtk.DIALOG_DESTROY_WITH_PARENT,(gtk.STOCK_OK, gtk.RESPONSE_ACCEPT))
 		
 		
-		self.add_button("Export", 444)
+		self.add_button(_("Export"), 444)
         	self.set_position(gtk.WIN_POS_CENTER)
 		
 		
@@ -70,9 +70,9 @@ class sqlDialog(gtk.Dialog):
 		#self.cell1.set_property('markup', 1)
 		
         	# create the TreeViewColumns to display the data
-        	self.tvcolumn1 = gtk.TreeViewColumn('Datum')
-        	self.tvcolumn2 = gtk.TreeViewColumn('SQL')
-		self.tvcolumn3 = gtk.TreeViewColumn('Parameter')
+        	self.tvcolumn1 = gtk.TreeViewColumn(_('Date'))
+        	self.tvcolumn2 = gtk.TreeViewColumn(_('SQL'))
+		self.tvcolumn3 = gtk.TreeViewColumn(_('Parameter'))
 		
         	# add columns to treeview
         	self.treeview.append_column(self.tvcolumn1)
@@ -113,7 +113,7 @@ class sqlDialog(gtk.Dialog):
 			pcdatum,sql,param = row
 			datum=str(time.strftime("%d.%m.%y %H:%M:%S ", (time.localtime(pcdatum))))
 			if len(param)>100:
-				param=param[:20]+" (Parameter gekürzt) "+param[20:]
+				param=param[:20]+_(" (Reduced parameter) ")+param[20:]
 			self.liststore.append([datum, sql,param])
 			i+=1
 			if (i>50):
