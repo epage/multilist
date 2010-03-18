@@ -35,5 +35,4 @@ if __name__ == "__main__":
 	_moduleLogger.info("Kernel: %s (%s) for %s" % os.uname()[2:])
 	_moduleLogger.info("Hostname: %s" % os.uname()[1])
 
-	app = libmultilist.multilistclass()
-	app.main()
+	libmultilist.run_multilist()

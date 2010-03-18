@@ -3,25 +3,30 @@
 
 import time
 import sqlite3
-import shelve
 import uuid
 
-db="/home/chris/Documents/Schule/Schule/schulplaner/schuljahr200708enni.s3db"
-conn = sqlite3.connect(db)
-cur = conn.cursor()
 
-sql="UPDATE sync SET syncpartner=? WHERE syncpartner=?"
-cur.execute(sql,(str(uuid.uuid4()),"self")) #Eigene Id ändern feststellen
-conn.commit()
+def copydb(db):
+	conn = sqlite3.connect(db)
+	cur = conn.cursor()
 
-sql="DELETE FROM sync WHERE syncpartner=?"
-cur.execute(sql,("self",))
-conn.commit()
+	sql = "UPDATE sync SET syncpartner=? WHERE syncpartner=?"
+	cur.execute(sql,(str(uuid.uuid4()),"self")) #Eigene Id ändern feststellen
+	conn.commit()
 
-sql="INSERT INTO sync (syncpartner,uuid,pcdatum) VALUES (?,?,?)"
-cur.execute(sql,("self",str(uuid.uuid4()),int(time.time())))
+	sql = "DELETE FROM sync WHERE syncpartner=?"
+	cur.execute(sql,("self",))
+	conn.commit()
 
-sql="UPDATE sync SET pcdatum=?"
-cur.execute(sql,(int(time.time()),))
+	sql = "INSERT INTO sync (syncpartner,uuid,pcdatum) VALUES (?,?,?)"
+	cur.execute(sql,("self",str(uuid.uuid4()),int(time.time())))
 
-conn.commit()
+	sql = "UPDATE sync SET pcdatum=?"
+	cur.execute(sql,(int(time.time()),))
+
+	conn.commit()
+
+
+if __name__ == "__main__":
+	db = "/home/chris/Documents/Schule/Schule/schulplaner/schuljahr200708enni.s3db"
+	copydb(db)
