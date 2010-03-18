@@ -1,9 +1,11 @@
 [Desktop Entry]
-Version=0.3.0
 Encoding=UTF-8
-Name=Multilist
-Exec=/usr/bin/multilist
-Icon=multilist
+Name=quicknote
+Comment=quicknote
 Type=Application
-#X-Osso-Service=multilist
-X-Osso-Type=application/x-executable 
+Exec=/usr/bin/run-standalone.sh /usr/bin/multilist.py
+Icon=Quicknote
+X-Window-Icon=quicknote
+X-Window-Icon-Dimmed=quicknote
+#X-Osso-Service=quicknote
+X-Osso-Type=application/x-executable
