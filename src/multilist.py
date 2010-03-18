@@ -1,64 +1,39 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-  
+
 """
-    This file is part of Multilist.
-
-    Multilist is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
-
-    Multilist is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
-
-    You should have received a copy of the GNU General Public License
-    along with Multilist.  If not, see <http://www.gnu.org/licenses/>.
-    
-    Copyright (C) 2008 Christoph Würstle
+Copyright (C) 2008 Christoph Würstle
+This program is free software; you can redistribute it and/or modify
+it under the terms of the GNU General Public License version 2 as
+published by the Free Software Foundation.
 """
 
 import os
 import sys
-
-##
-## I18N
-##
-import locale
+import logging
 import gettext
-gettext.install('multilist', unicode=1)
-			
-if __name__ == "__main__":
-	
-	try:
-		import tempfile
-		import gtk
-		tmpdir=tempfile.gettempdir()
-		
-   		os.mkdir(os.path.join(tmpdir, "multilist_lock"))
-	except OSError:
-   		## Failed: another instance is running
-		
-		mbox=gtk.MessageDialog(None,gtk.DIALOG_MODAL,gtk.MESSAGE_ERROR,gtk.BUTTONS_YES_NO,_("Multilist is already running. Start anyway? (Could result in db problems!)")) 
-		response=mbox.run() 
- 		mbox.hide() 
- 		mbox.destroy() 
-		if response==gtk.RESPONSE_NO:
-			sys.exit()
 
+_moduleLogger = logging.getLogger(__name__)
+gettext.install('multilist', unicode = 1)
+sys.path.append('/usr/lib/multilist')
+
+
+import constants
+import libmultilist
+
+
+if __name__ == "__main__":
 	try:
-		
-		from multilistclasses import libmultilist
-		#print dir(eggtimerclasses)
-		app = libmultilist.multilistclass() 
-		app.main() 
-   
-	finally:
-   		## Remove the PID file
-   		# (...)
-   		## Delete directory
-   		os.rmdir(os.path.join(tmpdir, "multilist_lock"))
-		
-	
+		os.makedirs(constants._data_path_)
+	except OSError, e:
+		if e.errno != 17:
+			raise
+
+	logging.basicConfig(level=logging.DEBUG, filename=constants._user_logpath_)
+	_moduleLogger.info("multilist %s-%s" % (constants.__version__, constants.__build__))
+	_moduleLogger.info("OS: %s" % (os.uname()[0], ))
+	_moduleLogger.info("Kernel: %s (%s) for %s" % os.uname()[2:])
+	_moduleLogger.info("Hostname: %s" % os.uname()[1])
+
+	app = libmultilist.multilistclass()
+	app.main()
