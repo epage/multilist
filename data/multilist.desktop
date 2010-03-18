@@ -1,0 +1,9 @@
+[Desktop Entry]
+Version=0.3.0
+Encoding=UTF-8
+Name=Multilist
+Exec=/usr/bin/multilist
+Icon=multilist
+Type=Application
+#X-Osso-Service=multilist
+X-Osso-Type=application/x-executable 

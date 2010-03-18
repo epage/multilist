@@ -1,0 +1,12 @@
+multilist (0.3.1) unstable; urgency=low
+
+  * I18N, extract de.po, add ru.po.
+
+ -- Nikolay Logvinov <NLogvinov@gmail.com>  Fri, 13 Mar 2009 13:42:23 +0300
+
+multilist (0.3.0) unstable; urgency=low
+
+  * Initial Release.
+
+ -- unknown <n800@axique.de>  Mon,  6 Aug 2007 08:12:53 +0100
+
