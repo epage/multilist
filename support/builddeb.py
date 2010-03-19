@@ -23,7 +23,7 @@ __build__ = constants.__build__
 __changelog__ = """
 0.3.1
   * I18N, extract de.po, add ru.po.
- 
+
 0.3.0
   * Initial Release.
 """
@@ -99,7 +99,7 @@ def build_package(distribution):
 	p.icon = {
 		"debian": "26x26-multilist.png",
 		"diablo": "26x26-multilist.png",
-		"fremantle": "48x48-multilist.png", # Fremantle natively uses 48x48
+		"fremantle": "40x40-multilist.png", # Fremantle natively uses 48x48
 	}[distribution]
 	p["/usr/bin"] = [ "multilist.py" ]
 	for relPath, files in unflatten_files(find_files(".", "locale")).iteritems():

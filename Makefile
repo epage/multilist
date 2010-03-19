@@ -66,10 +66,9 @@ package: $(OBJ) build_mo
 	#$(foreach file, $(OBJ), cp $(file) $(BUILD_PATH)/generic/$(subst /,-,$(file)) ; )
 	$(foreach file, $(LOCALE_FILES), cp $(file) $(BUILD_PATH)/generic/$(subst /,-,$(file)) ; )
 	cp data/$(PROJECT_NAME).desktop $(BUILD_PATH)/generic
-	cp data/$(PROJECT_NAME).service $(BUILD_PATH)/generic
-	cp data/26_$(PROJECT_NAME).png $(BUILD_PATH)/generic/26x26-$(PROJECT_NAME).png
-	cp data/40_$(PROJECT_NAME).png $(BUILD_PATH)/generic/40x40-$(PROJECT_NAME).png
-	cp data/64_$(PROJECT_NAME).png $(BUILD_PATH)/generic/scale-$(PROJECT_NAME).png
+	cp data/icons/26_$(PROJECT_NAME).png $(BUILD_PATH)/generic/26x26-$(PROJECT_NAME).png
+	cp data/icons/40_$(PROJECT_NAME).png $(BUILD_PATH)/generic/40x40-$(PROJECT_NAME).png
+	cp data/icons/64_$(PROJECT_NAME).png $(BUILD_PATH)/generic/scale-$(PROJECT_NAME).png
 	cp support/builddeb.py $(BUILD_PATH)/generic
 	cp support/py2deb.py $(BUILD_PATH)/generic
 	cp support/fake_py2deb.py $(BUILD_PATH)/generic
