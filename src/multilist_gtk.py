@@ -64,13 +64,13 @@ _moduleLogger = logging.getLogger(__name__)
 PROFILE_STARTUP = False
 
 
-class multilistclass(hildonize.get_app_class()):
+class Multilist(hildonize.get_app_class()):
 
 	_user_data = os.path.join(os.path.expanduser("~"), ".%s" % constants.__app_name__)
 	_user_settings = "%s/settings.ini" % _user_data
 
 	def __init__(self):
-		super(multilistclass, self).__init__()
+		super(Multilist, self).__init__()
 		self._clipboard = gtk.clipboard_get()
 
 		logging.info('Starting Multilist')
@@ -383,7 +383,7 @@ class multilistclass(hildonize.get_app_class()):
 def run_multilist():
 	if hildonize.IS_HILDON_SUPPORTED:
 		gtk.set_application_name(constants.__pretty_app_name__)
-	app = multilistclass()
+	app = Multilist()
 	if not PROFILE_STARTUP:
 		gtk.main()
 
