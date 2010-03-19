@@ -20,10 +20,13 @@ along with Multilist.  If not, see <http://www.gnu.org/licenses/>.
 Copyright (C) 2008 Christoph Würstle
 """
 
+import logging
+
 import gtk
 import gobject
-import logging
 import pango
+
+import gtk_toolbox
 
 
 try:
@@ -307,6 +310,7 @@ class CellRendererCombo2(gtk.GenericCellRenderer):
 
 		return x_offset, y_offset, width, height
 
+	@gtk_toolbox.log_exception(_moduleLogger)
 	def on_clicked(self,  widget, data):
 		print widget, data
 
@@ -481,7 +485,6 @@ class View(gtk.VBox):
 			else:
 				default = "1"
 			if self.db.ladeDirekt("showcol_"+str(self.liststorehandler.get_colname(i)), default) == "1":
-
 				if (i == 1):
 					self.cell[i] = CellRendererTriple()
 					self.tvcolumn[i] = 	gtk.TreeViewColumn(self.liststorehandler.get_colname(i), self.cell[i])

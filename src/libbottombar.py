@@ -26,6 +26,8 @@ import logging
 
 import gtk
 
+import gtk_toolbox
+
 try:
 	_
 except NameError:
@@ -41,94 +43,6 @@ class Bottombar(gtk.HBox):
 		'changed' : (gobject.SIGNAL_RUN_LAST, gobject.TYPE_NONE, (gobject.TYPE_STRING, gobject.TYPE_STRING)),
 		#'changedCategory': (gobject.SIGNAL_RUN_LAST, gobject.TYPE_NONE, (gobject.TYPE_STRING, gobject.TYPE_STRING))
 	}
-
-	def new_item(self, widget = None, data1 = None, data2 = None):
-		dialog = gtk.Dialog(_("New item name:"), None, gtk.DIALOG_MODAL | gtk.DIALOG_DESTROY_WITH_PARENT, (gtk.STOCK_CANCEL, gtk.RESPONSE_REJECT, gtk.STOCK_OK, gtk.RESPONSE_ACCEPT))
-		dialog.set_position(gtk.WIN_POS_CENTER)
-		entryKlasse = gtk.Entry()
-		entryKlasse.set_text("")
-
-		dialog.vbox.pack_start(entryKlasse, True, True, 0)
-
-		dialog.vbox.show_all()
-		#dialog.set_size_request(400, 300)
-
-		if dialog.run() == gtk.RESPONSE_ACCEPT:
-			#_moduleLogger.info("new category name "+entryKlasse.get_text())
-			#self.view.liststorehandler.rename_category(entryKlasse.get_text())
-			self.view.liststorehandler.add_row(entryKlasse.get_text())
-		dialog.destroy()
-
-	def del_item(self, widget = None, data1 = None, data2 = None):
-		path, col = self.view.treeview.get_cursor()
-		if path is not None:
-			mbox = gtk.MessageDialog(None, gtk.DIALOG_MODAL, gtk.MESSAGE_QUESTION, gtk.BUTTONS_YES_NO, _("Delete current item?"))
-			response = mbox.run()
-			mbox.hide()
-			mbox.destroy()
-			if response == gtk.RESPONSE_YES:
-				self.view.del_active_row()
-		else:
-			mbox = gtk.MessageDialog(None, gtk.DIALOG_MODAL, gtk.MESSAGE_ERROR, gtk.BUTTONS_OK, _("No item selected!"))
-			response = mbox.run()
-			mbox.hide()
-			mbox.destroy()
-
-	def checkout_items(self, widget = None, data1 = None, data2 = None):
-		#self.view.del_active_row()
-		mbox = gtk.MessageDialog(None, gtk.DIALOG_MODAL, gtk.MESSAGE_QUESTION, gtk.BUTTONS_YES_NO, (_("Really checkout all items?")))
-		response = mbox.run()
-		mbox.hide()
-		mbox.destroy()
-		if response == gtk.RESPONSE_YES:
-			self.view.liststorehandler.checkout_rows()
-			#n = len(self.view.liststorehandler.get_liststore())
-			#for i in range(n):
-			#	self.view.liststorehandler.checkout_rows()
-			#	#print i
-
-	def search_list(self, widget = None, data1 = None, data2 = None):
-		self.view.liststorehandler.get_liststore(widget.get_text())
-
-	def rename_category(self, widget = None, data1 = None, data2 = None):
-		dialog = gtk.Dialog(_("New category name:"), None, gtk.DIALOG_MODAL | gtk.DIALOG_DESTROY_WITH_PARENT, (gtk.STOCK_CANCEL, gtk.RESPONSE_REJECT, gtk.STOCK_OK, gtk.RESPONSE_ACCEPT))
-
-		dialog.set_position(gtk.WIN_POS_CENTER)
-		entryKlasse = gtk.Entry()
-		entryKlasse.set_text(self.view.liststorehandler.selection.get_category())
-
-		dialog.vbox.pack_start(entryKlasse, True, True, 0)
-
-		dialog.vbox.show_all()
-		#dialog.set_size_request(400, 300)
-
-		if dialog.run() == gtk.RESPONSE_ACCEPT:
-			_moduleLogger.info("new category name "+entryKlasse.get_text())
-			self.view.liststorehandler.rename_category(entryKlasse.get_text())
-		else:
-			#print "Cancel", res
-			pass
-		dialog.destroy()
-
-	def rename_list(self, widget = None, data1 = None, data2 = None):
-		dialog = gtk.Dialog(_("New list name:"), None, gtk.DIALOG_MODAL | gtk.DIALOG_DESTROY_WITH_PARENT, (gtk.STOCK_CANCEL, gtk.RESPONSE_REJECT, gtk.STOCK_OK, gtk.RESPONSE_ACCEPT))
-
-		dialog.set_position(gtk.WIN_POS_CENTER)
-		entryKlasse = gtk.Entry()
-		entryKlasse.set_text(self.view.liststorehandler.selection.get_list())
-
-		dialog.vbox.pack_start(entryKlasse, True, True, 0)
-
-		dialog.vbox.show_all()
-		#dialog.set_size_request(400, 300)
-
-		if dialog.run() == gtk.RESPONSE_ACCEPT:
-			_moduleLogger.info("new list name "+entryKlasse.get_text())
-			self.view.liststorehandler.rename_list(entryKlasse.get_text())
-		else:
-			#print "Cancel", res
-			pass
-		dialog.destroy()
 
 	def __init__(self, db, view, isHildon):
 		gtk.HBox.__init__(self, homogeneous = False, spacing = 3)
@@ -162,3 +76,97 @@ class Bottombar(gtk.HBox):
 		button = gtk.Button(_("Del item"))
 		button.connect("clicked", self.del_item)
 		self.pack_start(button, expand = False, fill = True, padding = 0)
+
+	@gtk_toolbox.log_exception(_moduleLogger)
+	def new_item(self, widget = None, data1 = None, data2 = None):
+		dialog = gtk.Dialog(_("New item name:"), None, gtk.DIALOG_MODAL | gtk.DIALOG_DESTROY_WITH_PARENT, (gtk.STOCK_CANCEL, gtk.RESPONSE_REJECT, gtk.STOCK_OK, gtk.RESPONSE_ACCEPT))
+		dialog.set_position(gtk.WIN_POS_CENTER)
+		entryKlasse = gtk.Entry()
+		entryKlasse.set_text("")
+
+		dialog.vbox.pack_start(entryKlasse, True, True, 0)
+
+		dialog.vbox.show_all()
+		#dialog.set_size_request(400, 300)
+
+		if dialog.run() == gtk.RESPONSE_ACCEPT:
+			#_moduleLogger.info("new category name "+entryKlasse.get_text())
+			#self.view.liststorehandler.rename_category(entryKlasse.get_text())
+			self.view.liststorehandler.add_row(entryKlasse.get_text())
+		dialog.destroy()
+
+	@gtk_toolbox.log_exception(_moduleLogger)
+	def del_item(self, widget = None, data1 = None, data2 = None):
+		path, col = self.view.treeview.get_cursor()
+		if path is not None:
+			mbox = gtk.MessageDialog(None, gtk.DIALOG_MODAL, gtk.MESSAGE_QUESTION, gtk.BUTTONS_YES_NO, _("Delete current item?"))
+			response = mbox.run()
+			mbox.hide()
+			mbox.destroy()
+			if response == gtk.RESPONSE_YES:
+				self.view.del_active_row()
+		else:
+			mbox = gtk.MessageDialog(None, gtk.DIALOG_MODAL, gtk.MESSAGE_ERROR, gtk.BUTTONS_OK, _("No item selected!"))
+			response = mbox.run()
+			mbox.hide()
+			mbox.destroy()
+
+	@gtk_toolbox.log_exception(_moduleLogger)
+	def checkout_items(self, widget = None, data1 = None, data2 = None):
+		#self.view.del_active_row()
+		mbox = gtk.MessageDialog(None, gtk.DIALOG_MODAL, gtk.MESSAGE_QUESTION, gtk.BUTTONS_YES_NO, (_("Really checkout all items?")))
+		response = mbox.run()
+		mbox.hide()
+		mbox.destroy()
+		if response == gtk.RESPONSE_YES:
+			self.view.liststorehandler.checkout_rows()
+			#n = len(self.view.liststorehandler.get_liststore())
+			#for i in range(n):
+			#	self.view.liststorehandler.checkout_rows()
+			#	#print i
+
+	@gtk_toolbox.log_exception(_moduleLogger)
+	def search_list(self, widget = None, data1 = None, data2 = None):
+		self.view.liststorehandler.get_liststore(widget.get_text())
+
+	@gtk_toolbox.log_exception(_moduleLogger)
+	def rename_category(self, widget = None, data1 = None, data2 = None):
+		dialog = gtk.Dialog(_("New category name:"), None, gtk.DIALOG_MODAL | gtk.DIALOG_DESTROY_WITH_PARENT, (gtk.STOCK_CANCEL, gtk.RESPONSE_REJECT, gtk.STOCK_OK, gtk.RESPONSE_ACCEPT))
+
+		dialog.set_position(gtk.WIN_POS_CENTER)
+		entryKlasse = gtk.Entry()
+		entryKlasse.set_text(self.view.liststorehandler.selection.get_category())
+
+		dialog.vbox.pack_start(entryKlasse, True, True, 0)
+
+		dialog.vbox.show_all()
+		#dialog.set_size_request(400, 300)
+
+		if dialog.run() == gtk.RESPONSE_ACCEPT:
+			_moduleLogger.info("new category name "+entryKlasse.get_text())
+			self.view.liststorehandler.rename_category(entryKlasse.get_text())
+		else:
+			#print "Cancel", res
+			pass
+		dialog.destroy()
+
+	@gtk_toolbox.log_exception(_moduleLogger)
+	def rename_list(self, widget = None, data1 = None, data2 = None):
+		dialog = gtk.Dialog(_("New list name:"), None, gtk.DIALOG_MODAL | gtk.DIALOG_DESTROY_WITH_PARENT, (gtk.STOCK_CANCEL, gtk.RESPONSE_REJECT, gtk.STOCK_OK, gtk.RESPONSE_ACCEPT))
+
+		dialog.set_position(gtk.WIN_POS_CENTER)
+		entryKlasse = gtk.Entry()
+		entryKlasse.set_text(self.view.liststorehandler.selection.get_list())
+
+		dialog.vbox.pack_start(entryKlasse, True, True, 0)
+
+		dialog.vbox.show_all()
+		#dialog.set_size_request(400, 300)
+
+		if dialog.run() == gtk.RESPONSE_ACCEPT:
+			_moduleLogger.info("new list name "+entryKlasse.get_text())
+			self.view.liststorehandler.rename_list(entryKlasse.get_text())
+		else:
+			#print "Cancel", res
+			pass
+		dialog.destroy()

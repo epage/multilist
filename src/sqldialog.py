@@ -23,8 +23,11 @@ Copyright (C) 2008 Christoph Würstle
 from __future__ import with_statement
 
 import time
-import gtk
 import logging
+
+import gtk
+
+import gtk_toolbox
 
 
 try:

@@ -38,6 +38,7 @@ except ImportError:
 
 import constants
 import hildonize
+import gtk_toolbox
 
 import libspeichern
 import sqldialog
@@ -195,6 +196,7 @@ class Multilist(hildonize.get_app_class()):
 		self.prepare_sync_dialog()
 		self.ladeAlles()
 
+	@gtk_toolbox.log_exception(_moduleLogger)
 	def on_key_press(self, widget, event, *args):
 		RETURN_TYPES = (gtk.keysyms.Return, gtk.keysyms.ISO_Enter, gtk.keysyms.KP_Enter)
 		isCtrl = bool(event.get_state() & gtk.gdk.CONTROL_MASK)
@@ -223,6 +225,7 @@ class Multilist(hildonize.get_app_class()):
 				self._clipboard.set_text(str(log))
 			return True
 
+	@gtk_toolbox.log_exception(_moduleLogger)
 	def on_window_state_change(self, widget, event, *args):
 		if event.new_window_state & gtk.gdk.WINDOW_STATE_FULLSCREEN:
 			self.window_in_fullscreen = True
@@ -238,6 +241,7 @@ class Multilist(hildonize.get_app_class()):
 	def beforeSync(self, data = None, data2 = None):
 		logging.info("Lade alles")
 
+	@gtk_toolbox.log_exception(_moduleLogger)
 	def sync_finished(self, data = None, data2 = None):
 		self.selection.comboList_changed()
 		self.selection.comboCategory_changed()
@@ -252,14 +256,15 @@ class Multilist(hildonize.get_app_class()):
 		self.sync_dialog.vbox.pack_start(sync, True, True, 0)
 		self.sync_dialog.set_size_request(500, 350)
 		self.sync_dialog.vbox.show_all()
-		sync.connect("syncFinished", self.sync_finished)
 
+	@gtk_toolbox.log_exception(_moduleLogger)
 	def sync_notes(self, widget = None, data = None):
 		if self.sync_dialog == None:
 			self.prepare_sync_dialog()
 		self.sync_dialog.run()
 		self.sync_dialog.hide()
 
+	@gtk_toolbox.log_exception(_moduleLogger)
 	def show_columns_dialog(self, widget = None, data = None):
 		col_dialog = gtk.Dialog(_("Choose columns"), self.window, gtk.DIALOG_MODAL | gtk.DIALOG_DESTROY_WITH_PARENT, (gtk.STOCK_CANCEL, gtk.RESPONSE_REJECT, gtk.STOCK_OK, gtk.RESPONSE_ACCEPT))
 
@@ -286,6 +291,7 @@ class Multilist(hildonize.get_app_class()):
 
 		col_dialog.destroy()
 
+	@gtk_toolbox.log_exception(_moduleLogger)
 	def destroy(self, widget = None, data = None):
 		try:
 			self.speichereAlles()
@@ -297,6 +303,7 @@ class Multilist(hildonize.get_app_class()):
 		finally:
 			gtk.main_quit()
 
+	@gtk_toolbox.log_exception(_moduleLogger)
 	def delete_event(self, widget, event, data = None):
 		#print "delete event occurred"
 		return False
@@ -304,6 +311,7 @@ class Multilist(hildonize.get_app_class()):
 	def dlg_delete(self, widget, event, data = None):
 		return False
 
+	@gtk_toolbox.log_exception(_moduleLogger)
 	def show_about(self, widget = None, data = None):
 		dialog = gtk.AboutDialog()
 		dialog.set_position(gtk.WIN_POS_CENTER)
@@ -320,6 +328,7 @@ class Multilist(hildonize.get_app_class()):
 	def on_info1_activate(self, menuitem):
 		self.show_about(menuitem)
 
+	@gtk_toolbox.log_exception(_moduleLogger)
 	def view_sql_history(self, widget = None, data = None, data2 = None):
 		sqldiag = sqldialog.SqlDialog(self.db)
 		res = sqldiag.run()
@@ -351,10 +360,12 @@ class Multilist(hildonize.get_app_class()):
 		finally:
 			sqldiag.destroy()
 
+	@gtk_toolbox.log_exception(_moduleLogger)
 	def optimizeSQL(self, widget = None, data = None, data2 = None):
 		#optimiere sql
 		self.db.speichereSQL("VACUUM", log = False)
 
+	@gtk_toolbox.log_exception(_moduleLogger)
 	def select_db_dialog(self, widget = None, data = None, data2 = None):
 		if (isHildon == False):
 			dlg = gtk.FileChooserDialog(parent = self.window, action = gtk.FILE_CHOOSER_ACTION_SAVE)

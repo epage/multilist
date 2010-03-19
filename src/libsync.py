@@ -29,6 +29,8 @@ import logging
 import gobject
 import gtk
 
+import gtk_toolbox
+
 
 try:
 	_
@@ -301,6 +303,7 @@ class Sync(gtk.VBox):
 	def getRemoteSyncUUID(self):
 		return self.sync_uuid
 
+	@gtk_toolbox.log_exception(_moduleLogger)
 	def startServer(self, widget, data = None):
 		#Starte RPCServer
 		self.db.speichereDirekt("syncServerIP", self.comboIP.get_child().get_text())
@@ -361,6 +364,7 @@ class Sync(gtk.VBox):
 		self.changeSyncStatus(False, _("no sync process (at the moment)"))
 		return (self.sync_uuid, pcdatum)
 
+	@gtk_toolbox.log_exception(_moduleLogger)
 	def syncButton(self, widget, data = None):
 		_moduleLogger.info("Syncing")
 		#sql = "DELETE FROM logtable WHERE sql LIKE externeStundenplanung"

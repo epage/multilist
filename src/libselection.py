@@ -21,10 +21,12 @@ Copyright (C) 2008 Christoph Würstle
 """
 
 
-import gobject
 import logging
 
+import gobject
 import gtk
+
+import gtk_toolbox
 
 try:
 	_
@@ -41,6 +43,40 @@ class Selection(gtk.HBox):
 		'changed' : (gobject.SIGNAL_RUN_LAST, gobject.TYPE_NONE, (gobject.TYPE_STRING, gobject.TYPE_STRING)),
 		#'changedCategory': (gobject.SIGNAL_RUN_LAST, gobject.TYPE_NONE, (gobject.TYPE_STRING, gobject.TYPE_STRING))
 	}
+
+	def __init__(self, db, isHildon):
+		gtk.HBox.__init__(self, homogeneous = False, spacing = 3)
+
+		self.db = db
+		self.isHildon = isHildon
+
+		_moduleLogger.info("libSelection, init")
+
+		label = gtk.Label(_("List:"))
+		self.pack_start(label, expand = False, fill = True, padding = 0)
+
+		self.comboList = gtk.combo_box_entry_new_text()
+		self.comboList.set_size_request(180, -1)
+		self.pack_start(self.comboList, expand = False, fill = True, padding = 0)
+
+		label = gtk.Label(_("  Category:"))
+		self.pack_start(label, expand = False, fill = True, padding = 0)
+
+		self.comboCategory = gtk.combo_box_entry_new_text()
+		self.comboCategory.set_size_request(180, -1)
+		self.pack_start(self.comboCategory, expand = False, fill = True, padding = 0)
+
+		self.comboList.connect("changed", self.comboList_changed, None)
+		self.comboCategory.connect("changed", self.comboCategory_changed, None)
+
+		label = gtk.Label(_("  View:"))
+		self.pack_start(label, expand = False, fill = True, padding = 0)
+
+		self.radio_all = gtk.RadioButton(group = None, label = _("All"), use_underline = True)
+		self.pack_start(self.radio_all, expand = False, fill = True, padding = 0)
+		self.radio_active = gtk.RadioButton(group = self.radio_all, label = _("Active"), use_underline = True)
+		self.pack_start(self.radio_active, expand = False, fill = True, padding = 0)
+		self.radio_all.connect("toggled", self.radioActive_changed, None)
 
 	def load(self):
 		model = self.comboList.get_model()
@@ -61,6 +97,7 @@ class Selection(gtk.HBox):
 		else:
 			self.comboList.set_active(0)
 
+	@gtk_toolbox.log_exception(_moduleLogger)
 	def comboList_changed(self, widget = None, data = None):
 		#self.comboCategory.set_model(None)
 		#print "reload categories"
@@ -85,6 +122,7 @@ class Selection(gtk.HBox):
 		self.emit("changed", "list", "")
 		self.db.speichereDirekt("comboListText", self.comboList.get_child().get_text())
 
+	@gtk_toolbox.log_exception(_moduleLogger)
 	def comboCategory_changed(self, widget = None, data = None):
 		#_moduleLogger.info("Klasse geaendert zu ")
 		#self.hauptRegister.set_current_page(0)
@@ -92,6 +130,7 @@ class Selection(gtk.HBox):
 		if self.comboCategory.get_active()>-1:
 			self.db.speichereDirekt("comboCategoryText"+self.comboList.get_child().get_text(), self.comboCategory.get_child().get_text())
 
+	@gtk_toolbox.log_exception(_moduleLogger)
 	def radioActive_changed(self, widget, data = None):
 		self.emit("changed", "radio", "")
 
@@ -150,37 +189,3 @@ class Selection(gtk.HBox):
 			return "-1"
 		else:
 			return "0"
-
-	def __init__(self, db, isHildon):
-		gtk.HBox.__init__(self, homogeneous = False, spacing = 3)
-
-		self.db = db
-		self.isHildon = isHildon
-
-		_moduleLogger.info("libSelection, init")
-
-		label = gtk.Label(_("List:"))
-		self.pack_start(label, expand = False, fill = True, padding = 0)
-
-		self.comboList = gtk.combo_box_entry_new_text()
-		self.comboList.set_size_request(180, -1)
-		self.pack_start(self.comboList, expand = False, fill = True, padding = 0)
-
-		label = gtk.Label(_("  Category:"))
-		self.pack_start(label, expand = False, fill = True, padding = 0)
-
-		self.comboCategory = gtk.combo_box_entry_new_text()
-		self.comboCategory.set_size_request(180, -1)
-		self.pack_start(self.comboCategory, expand = False, fill = True, padding = 0)
-
-		self.comboList.connect("changed", self.comboList_changed, None)
-		self.comboCategory.connect("changed", self.comboCategory_changed, None)
-
-		label = gtk.Label(_("  View:"))
-		self.pack_start(label, expand = False, fill = True, padding = 0)
-
-		self.radio_all = gtk.RadioButton(group = None, label = _("All"), use_underline = True)
-		self.pack_start(self.radio_all, expand = False, fill = True, padding = 0)
-		self.radio_active = gtk.RadioButton(group = self.radio_all, label = _("Active"), use_underline = True)
-		self.pack_start(self.radio_active, expand = False, fill = True, padding = 0)
-		self.radio_all.connect("toggled", self.radioActive_changed, None)

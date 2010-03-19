@@ -20,9 +20,11 @@ along with Multilist.  If not, see <http://www.gnu.org/licenses/>.
 Copyright (C) 2008 Christoph Würstle
 """
 
-import gtk
 import logging
 
+import gtk
+
+import gtk_toolbox
 
 try:
 	_
@@ -34,6 +36,33 @@ _moduleLogger = logging.getLogger(__name__)
 
 
 class Liststorehandler(object):
+
+	def __init__(self, db, selection):
+		self.db = db
+		self.liststore = None
+		self.unitsstore = None
+		self.selection = selection
+		self.collist = ("uid", "status", "title", "quantitiy", "unit", "price", "priority", "date", "private", "stores", "note", "custom1", "custom2")
+
+		#sql = "DROP TABLE items"
+		#self.db.speichereSQL(sql)
+
+		sql = "CREATE TABLE items (uid TEXT, list TEXT, category TEXT, status TEXT, title TEXT, quantitiy TEXT, unit TEXT, price TEXT, priority TEXT, date TEXT, pcdate TEXT, private TEXT, stores TEXT, note TEXT, custom1 TEXT, custom2 TEXT)"
+		self.db.speichereSQL(sql)
+
+		self.selection.load()
+		self.selection.connect("changed", self.update_list)
+		#self.selection.connect("changedCategory", self.update_category)
+
+		"""
+		sql = "INSERT INTO items (uid, list, category, title) VALUES (?, ?, ?, ?)"
+		import uuid
+		self.db.speichereSQL(sql, (str(uuid.uuid4()), "default", "default", "atitel1"))
+		self.db.speichereSQL(sql, (str(uuid.uuid4()), "default", "default", "btitel2"))
+		self.db.speichereSQL(sql, (str(uuid.uuid4()), "default", "default", "ctitel3"))
+		
+		print "inserted"
+		"""
 
 	def get_unitsstore(self):
 		if (self.unitsstore == None):
@@ -171,35 +200,10 @@ class Liststorehandler(object):
 		self.selection.load()
 		self.selection.set_list(new_name)
 
+	#@gtk_toolbox.log_exception(_moduleLogger)
 	#def update_category(self, widget = None, data = None, data2 = None, data3 = None):
 	#	self.get_liststore()
 
+	@gtk_toolbox.log_exception(_moduleLogger)
 	def update_list(self, widget = None, data = None, data2 = None, data3 = None):
 		self.get_liststore()
-
-	def __init__(self, db, selection):
-		self.db = db
-		self.liststore = None
-		self.unitsstore = None
-		self.selection = selection
-		self.collist = ("uid", "status", "title", "quantitiy", "unit", "price", "priority", "date", "private", "stores", "note", "custom1", "custom2")
-
-		#sql = "DROP TABLE items"
-		#self.db.speichereSQL(sql)
-
-		sql = "CREATE TABLE items (uid TEXT, list TEXT, category TEXT, status TEXT, title TEXT, quantitiy TEXT, unit TEXT, price TEXT, priority TEXT, date TEXT, pcdate TEXT, private TEXT, stores TEXT, note TEXT, custom1 TEXT, custom2 TEXT)"
-		self.db.speichereSQL(sql)
-
-		self.selection.load()
-		self.selection.connect("changed", self.update_list)
-		#self.selection.connect("changedCategory", self.update_category)
-
-		"""
-		sql = "INSERT INTO items (uid, list, category, title) VALUES (?, ?, ?, ?)"
-		import uuid
-		self.db.speichereSQL(sql, (str(uuid.uuid4()), "default", "default", "atitel1"))
-		self.db.speichereSQL(sql, (str(uuid.uuid4()), "default", "default", "btitel2"))
-		self.db.speichereSQL(sql, (str(uuid.uuid4()), "default", "default", "ctitel3"))
-		
-		print "inserted"
-		"""
