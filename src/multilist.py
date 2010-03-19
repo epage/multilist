@@ -19,7 +19,7 @@ sys.path.append('/usr/lib/multilist')
 
 
 import constants
-import libmultilist
+import multilist_gtk
 
 
 if __name__ == "__main__":
@@ -35,4 +35,4 @@ if __name__ == "__main__":
 	_moduleLogger.info("Kernel: %s (%s) for %s" % os.uname()[2:])
 	_moduleLogger.info("Hostname: %s" % os.uname()[1])
 
-	libmultilist.run_multilist()
+	multilist_gtk.run_multilist()
