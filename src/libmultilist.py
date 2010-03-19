@@ -69,97 +69,6 @@ class multilistclass(hildonize.get_app_class()):
 	_user_data = os.path.join(os.path.expanduser("~"), ".%s" % constants.__app_name__)
 	_user_settings = "%s/settings.ini" % _user_data
 
-	def on_key_press(self, widget, event, *args):
-		RETURN_TYPES = (gtk.keysyms.Return, gtk.keysyms.ISO_Enter, gtk.keysyms.KP_Enter)
-		isCtrl = bool(event.get_state() & gtk.gdk.CONTROL_MASK)
-		if (
-			event.keyval == gtk.keysyms.F6 or
-			event.keyval in RETURN_TYPES and isCtrl
-		):
-			# The "Full screen" hardware key has been pressed 
-			if self.window_in_fullscreen:
-				self.window.unfullscreen ()
-			else:
-				self.window.fullscreen ()
-			return True
-		#elif event.keyval == gtk.keysyms.f and isCtrl:
-		#	self._toggle_search()
-		#	return True
-		elif (
-			event.keyval in (gtk.keysyms.w, gtk.keysyms.q) and
-			event.get_state() & gtk.gdk.CONTROL_MASK
-		):
-			self._window.destroy()
-		elif event.keyval == gtk.keysyms.l and event.get_state() & gtk.gdk.CONTROL_MASK:
-			with open(constants._user_logpath_, "r") as f:
-				logLines = f.xreadlines()
-				log = "".join(logLines)
-				self._clipboard.set_text(str(log))
-			return True
-
-	def on_window_state_change(self, widget, event, *args):
-		if event.new_window_state & gtk.gdk.WINDOW_STATE_FULLSCREEN:
-			self.window_in_fullscreen = True
-		else:
-			self.window_in_fullscreen = False
-
-	def speichereAlles(self,data=None,data2=None):
-		logging.info("Speichere alles")
-
-	def ladeAlles(self,data=None,data2=None):
-		logging.info("Lade alles")
-
-	def beforeSync(self,data=None,data2=None):
-		logging.info("Lade alles")
-
-	def sync_finished(self,data=None,data2=None):
-		self.selection.comboList_changed()
-		self.selection.comboCategory_changed()
-		self.liststorehandler.update_list()
-
-	def prepare_sync_dialog(self):
-		self.sync_dialog = gtk.Dialog(_("Sync"),None,gtk.DIALOG_MODAL | gtk.DIALOG_DESTROY_WITH_PARENT,(gtk.STOCK_OK, gtk.RESPONSE_ACCEPT))
-
-		self.sync_dialog.set_position(gtk.WIN_POS_CENTER)
-		sync=libsync.Sync(self.db,self.window,50503)
-		sync.connect("syncFinished",self.sync_finished)
-		self.sync_dialog.vbox.pack_start(sync, True, True, 0)
-		self.sync_dialog.set_size_request(500,350)
-		self.sync_dialog.vbox.show_all()
-		sync.connect("syncFinished",self.sync_finished)
-
-	def sync_notes(self,widget=None,data=None):
-		if self.sync_dialog==None:
-			self.prepare_sync_dialog()
-		self.sync_dialog.run()
-		self.sync_dialog.hide()
-
-	def show_columns_dialog(self,widget=None,data=None):
-		col_dialog = gtk.Dialog(_("Choose columns"),self.window,gtk.DIALOG_MODAL | gtk.DIALOG_DESTROY_WITH_PARENT, (gtk.STOCK_CANCEL, gtk.RESPONSE_REJECT, gtk.STOCK_OK, gtk.RESPONSE_ACCEPT))
-
-		col_dialog.set_position(gtk.WIN_POS_CENTER)
-		cols=libview.Columns_dialog(self.db,self.liststorehandler)
-
-		col_dialog.vbox.pack_start(cols, True, True, 0)
-		col_dialog.set_size_request(500,350)
-		col_dialog.vbox.show_all()
-
-		resp=col_dialog.run()
-		col_dialog.hide()
-		if resp==gtk.RESPONSE_ACCEPT:
-			logging.info("changing columns")
-			cols.save_column_setting()
-			self.view.reload_view()
-			#children=self.vbox.get_children()
-			#while len(children)>1:
-			#	self.vbox.remove(children[1])
-
-			#self.vbox.pack_end(self.bottombar, expand=True, fill=True, padding=0)
-			#self.vbox.pack_end(view, expand=True, fill=True, padding=0)
-			#self.vbox.pack_end(self.selection, expand=False, fill=True, padding=0)
-
-		col_dialog.destroy()
-
 	def __init__(self):
 		super(multilistclass, self).__init__()
 		self._clipboard = gtk.clipboard_get()
@@ -292,6 +201,97 @@ class multilistclass(hildonize.get_app_class()):
 		self.window.show_all()
 		self.prepare_sync_dialog()
 		self.ladeAlles()
+
+	def on_key_press(self, widget, event, *args):
+		RETURN_TYPES = (gtk.keysyms.Return, gtk.keysyms.ISO_Enter, gtk.keysyms.KP_Enter)
+		isCtrl = bool(event.get_state() & gtk.gdk.CONTROL_MASK)
+		if (
+			event.keyval == gtk.keysyms.F6 or
+			event.keyval in RETURN_TYPES and isCtrl
+		):
+			# The "Full screen" hardware key has been pressed 
+			if self.window_in_fullscreen:
+				self.window.unfullscreen ()
+			else:
+				self.window.fullscreen ()
+			return True
+		#elif event.keyval == gtk.keysyms.f and isCtrl:
+		#	self._toggle_search()
+		#	return True
+		elif (
+			event.keyval in (gtk.keysyms.w, gtk.keysyms.q) and
+			event.get_state() & gtk.gdk.CONTROL_MASK
+		):
+			self._window.destroy()
+		elif event.keyval == gtk.keysyms.l and event.get_state() & gtk.gdk.CONTROL_MASK:
+			with open(constants._user_logpath_, "r") as f:
+				logLines = f.xreadlines()
+				log = "".join(logLines)
+				self._clipboard.set_text(str(log))
+			return True
+
+	def on_window_state_change(self, widget, event, *args):
+		if event.new_window_state & gtk.gdk.WINDOW_STATE_FULLSCREEN:
+			self.window_in_fullscreen = True
+		else:
+			self.window_in_fullscreen = False
+
+	def speichereAlles(self,data=None,data2=None):
+		logging.info("Speichere alles")
+
+	def ladeAlles(self,data=None,data2=None):
+		logging.info("Lade alles")
+
+	def beforeSync(self,data=None,data2=None):
+		logging.info("Lade alles")
+
+	def sync_finished(self,data=None,data2=None):
+		self.selection.comboList_changed()
+		self.selection.comboCategory_changed()
+		self.liststorehandler.update_list()
+
+	def prepare_sync_dialog(self):
+		self.sync_dialog = gtk.Dialog(_("Sync"),None,gtk.DIALOG_MODAL | gtk.DIALOG_DESTROY_WITH_PARENT,(gtk.STOCK_OK, gtk.RESPONSE_ACCEPT))
+
+		self.sync_dialog.set_position(gtk.WIN_POS_CENTER)
+		sync=libsync.Sync(self.db,self.window,50503)
+		sync.connect("syncFinished",self.sync_finished)
+		self.sync_dialog.vbox.pack_start(sync, True, True, 0)
+		self.sync_dialog.set_size_request(500,350)
+		self.sync_dialog.vbox.show_all()
+		sync.connect("syncFinished",self.sync_finished)
+
+	def sync_notes(self,widget=None,data=None):
+		if self.sync_dialog==None:
+			self.prepare_sync_dialog()
+		self.sync_dialog.run()
+		self.sync_dialog.hide()
+
+	def show_columns_dialog(self,widget=None,data=None):
+		col_dialog = gtk.Dialog(_("Choose columns"),self.window,gtk.DIALOG_MODAL | gtk.DIALOG_DESTROY_WITH_PARENT, (gtk.STOCK_CANCEL, gtk.RESPONSE_REJECT, gtk.STOCK_OK, gtk.RESPONSE_ACCEPT))
+
+		col_dialog.set_position(gtk.WIN_POS_CENTER)
+		cols=libview.Columns_dialog(self.db,self.liststorehandler)
+
+		col_dialog.vbox.pack_start(cols, True, True, 0)
+		col_dialog.set_size_request(500,350)
+		col_dialog.vbox.show_all()
+
+		resp=col_dialog.run()
+		col_dialog.hide()
+		if resp==gtk.RESPONSE_ACCEPT:
+			logging.info("changing columns")
+			cols.save_column_setting()
+			self.view.reload_view()
+			#children=self.vbox.get_children()
+			#while len(children)>1:
+			#	self.vbox.remove(children[1])
+
+			#self.vbox.pack_end(self.bottombar, expand=True, fill=True, padding=0)
+			#self.vbox.pack_end(view, expand=True, fill=True, padding=0)
+			#self.vbox.pack_end(self.selection, expand=False, fill=True, padding=0)
+
+		col_dialog.destroy()
 
 	def destroy(self, widget=None, data=None):
 		try:
