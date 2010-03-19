@@ -79,9 +79,9 @@ class SqlDialog(gtk.Dialog):
 		self.tvcolumn2.pack_start(self.cell2, True)
 		self.tvcolumn3.pack_start(self.cell3, True)
 
-		self.tvcolumn1.set_attributes(self.cell1, text=0) #Spalten setzten hier!!!!
-		self.tvcolumn2.set_attributes(self.cell2, text=1)
-		self.tvcolumn3.set_attributes(self.cell3, text=2)
+		self.tvcolumn1.set_attributes(self.cell1, text = 0) #Spalten setzten hier!!!!
+		self.tvcolumn2.set_attributes(self.cell2, text = 1)
+		self.tvcolumn3.set_attributes(self.cell3, text = 2)
 
 		# make treeview searchable
 		#self.treeview.set_search_column(0)
@@ -93,15 +93,15 @@ class SqlDialog(gtk.Dialog):
 		scrolled_window = gtk.ScrolledWindow()
 		scrolled_window.set_policy(gtk.POLICY_AUTOMATIC, gtk.POLICY_AUTOMATIC)
 		scrolled_window.add(self.treeview)
-		#self.pack_start(scrolled_window, expand=True, fill=True, padding=0)
+		#self.pack_start(scrolled_window, expand = True, fill = True, padding = 0)
 
 		self.vbox.pack_start(scrolled_window, True, True, 0)
 
 		self.vbox.show_all()
 
-		msgstring=""
-		sql="SELECT pcdatum,sql,param FROM logtable WHERE pcdatum>? ORDER BY pcdatum DESC"
-		rows=db.ladeSQL(sql, (time.time()-3*24*3600, ))
+		msgstring = ""
+		sql = "SELECT pcdatum, sql, param FROM logtable WHERE pcdatum>? ORDER BY pcdatum DESC"
+		rows = db.ladeSQL(sql, (time.time()-3*24*3600, ))
 		for i, row in enumerate(rows):
 			if (i>50):
 				break
@@ -109,17 +109,17 @@ class SqlDialog(gtk.Dialog):
 			pcdatum, sql, param = row
 			datum = str(time.strftime("%d.%m.%y %H:%M:%S ", (time.localtime(pcdatum))))
 			if 100 < len(param):
-				param=param[:20]+_(" (Reduced parameter) ")+param[20:]
-			self.liststore.append([datum, sql,param])
+				param = param[:20]+_(" (Reduced parameter) ")+param[20:]
+			self.liststore.append([datum, sql, param])
 
-		self.set_size_request(500,400)
+		self.set_size_request(500, 400)
 
-	def exportSQL(self,filename):
+	def exportSQL(self, filename):
 		with open(filename, 'w') as f:
-			msgstring=""
-			sql="SELECT pcdatum,sql,param FROM logtable WHERE pcdatum>? ORDER BY pcdatum DESC"
-			rows=self.db.ladeSQL(sql,(time.time()-2*24*3600,))
+			msgstring = ""
+			sql = "SELECT pcdatum, sql, param FROM logtable WHERE pcdatum>? ORDER BY pcdatum DESC"
+			rows = self.db.ladeSQL(sql, (time.time()-2*24*3600, ))
 			for row in rows:
-				pcdatum,sql,param = row
-				datum=str(time.strftime("%d.%m.%y %H:%M:%S ", (time.localtime(pcdatum))))
+				pcdatum, sql, param = row
+				datum = str(time.strftime("%d.%m.%y %H:%M:%S ", (time.localtime(pcdatum))))
 				f.write( datum +"\t" + sql + "\t\t" + param+ "\n")

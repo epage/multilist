@@ -29,7 +29,7 @@ if __name__ == "__main__":
 		if e.errno != 17:
 			raise
 
-	logging.basicConfig(level=logging.DEBUG, filename=constants._user_logpath_)
+	logging.basicConfig(level = logging.DEBUG, filename = constants._user_logpath_)
 	_moduleLogger.info("multilist %s-%s" % (constants.__version__, constants.__build__))
 	_moduleLogger.info("OS: %s" % (os.uname()[0], ))
 	_moduleLogger.info("Kernel: %s (%s) for %s" % os.uname()[2:])

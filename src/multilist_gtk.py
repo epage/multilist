@@ -21,22 +21,15 @@ Copyright (C) 2008 Christoph Würstle
 """
 
 import os
-import sys
 import logging
 
 import gtk
 
 try:
 	import hildon
-	isHildon=True
+	isHildon = True
 except:
-	isHildon=False
-	class hildon():
-		def __init__(self):
-			print "PseudoClass hildon"
-		class Program():
-			def __init__(self):
-				print "PseudoClass hildon.Program"
+	isHildon = False
 
 try:
 	import osso
@@ -86,7 +79,7 @@ class Multilist(hildonize.get_app_class()):
 
 		#Haupt vbox für alle Elemente
 		self.window = gtk.Window()
-		self.vbox = gtk.VBox(homogeneous=False, spacing=0)
+		self.vbox = gtk.VBox(homogeneous = False, spacing = 0)
 
 		self.selection = libselection.Selection(self.db, isHildon)
 		self.liststorehandler = libliststorehandler.Liststorehandler(self.db, self.selection)
@@ -164,9 +157,9 @@ class Multilist(hildonize.get_app_class()):
 			self.vbox.pack_start(menuBar, False, False, 0)
 
 		#add to vbox below (to get it on top)
-		self.vbox.pack_end(self.bottombar, expand=False, fill=True, padding=0)
-		self.vbox.pack_end(self.view, expand=True, fill=True, padding=0)
-		self.vbox.pack_end(self.selection, expand=False, fill=True, padding=0)
+		self.vbox.pack_end(self.bottombar, expand = False, fill = True, padding = 0)
+		self.vbox.pack_end(self.view, expand = True, fill = True, padding = 0)
+		self.vbox.pack_end(self.selection, expand = False, fill = True, padding = 0)
 
 		#Get the Main Window, and connect the "destroy" event
 		self.window.add(self.vbox)
@@ -222,7 +215,7 @@ class Multilist(hildonize.get_app_class()):
 			event.keyval in (gtk.keysyms.w, gtk.keysyms.q) and
 			event.get_state() & gtk.gdk.CONTROL_MASK
 		):
-			self._window.destroy()
+			self.window.destroy()
 		elif event.keyval == gtk.keysyms.l and event.get_state() & gtk.gdk.CONTROL_MASK:
 			with open(constants._user_logpath_, "r") as f:
 				logLines = f.xreadlines()
@@ -236,16 +229,16 @@ class Multilist(hildonize.get_app_class()):
 		else:
 			self.window_in_fullscreen = False
 
-	def speichereAlles(self, data=None, data2=None):
+	def speichereAlles(self, data = None, data2 = None):
 		logging.info("Speichere alles")
 
-	def ladeAlles(self, data=None, data2=None):
+	def ladeAlles(self, data = None, data2 = None):
 		logging.info("Lade alles")
 
-	def beforeSync(self, data=None, data2=None):
+	def beforeSync(self, data = None, data2 = None):
 		logging.info("Lade alles")
 
-	def sync_finished(self, data=None, data2=None):
+	def sync_finished(self, data = None, data2 = None):
 		self.selection.comboList_changed()
 		self.selection.comboCategory_changed()
 		self.liststorehandler.update_list()
@@ -254,46 +247,46 @@ class Multilist(hildonize.get_app_class()):
 		self.sync_dialog = gtk.Dialog(_("Sync"), None, gtk.DIALOG_MODAL | gtk.DIALOG_DESTROY_WITH_PARENT, (gtk.STOCK_OK, gtk.RESPONSE_ACCEPT))
 
 		self.sync_dialog.set_position(gtk.WIN_POS_CENTER)
-		sync=libsync.Sync(self.db, self.window, 50503)
+		sync = libsync.Sync(self.db, self.window, 50503)
 		sync.connect("syncFinished", self.sync_finished)
 		self.sync_dialog.vbox.pack_start(sync, True, True, 0)
 		self.sync_dialog.set_size_request(500, 350)
 		self.sync_dialog.vbox.show_all()
 		sync.connect("syncFinished", self.sync_finished)
 
-	def sync_notes(self, widget=None, data=None):
-		if self.sync_dialog==None:
+	def sync_notes(self, widget = None, data = None):
+		if self.sync_dialog == None:
 			self.prepare_sync_dialog()
 		self.sync_dialog.run()
 		self.sync_dialog.hide()
 
-	def show_columns_dialog(self, widget=None, data=None):
+	def show_columns_dialog(self, widget = None, data = None):
 		col_dialog = gtk.Dialog(_("Choose columns"), self.window, gtk.DIALOG_MODAL | gtk.DIALOG_DESTROY_WITH_PARENT, (gtk.STOCK_CANCEL, gtk.RESPONSE_REJECT, gtk.STOCK_OK, gtk.RESPONSE_ACCEPT))
 
 		col_dialog.set_position(gtk.WIN_POS_CENTER)
-		cols=libview.Columns_dialog(self.db, self.liststorehandler)
+		cols = libview.Columns_dialog(self.db, self.liststorehandler)
 
 		col_dialog.vbox.pack_start(cols, True, True, 0)
 		col_dialog.set_size_request(500, 350)
 		col_dialog.vbox.show_all()
 
-		resp=col_dialog.run()
+		resp = col_dialog.run()
 		col_dialog.hide()
-		if resp==gtk.RESPONSE_ACCEPT:
+		if resp == gtk.RESPONSE_ACCEPT:
 			logging.info("changing columns")
 			cols.save_column_setting()
 			self.view.reload_view()
-			#children=self.vbox.get_children()
+			#children = self.vbox.get_children()
 			#while len(children)>1:
 			#	self.vbox.remove(children[1])
 
-			#self.vbox.pack_end(self.bottombar, expand=True, fill=True, padding=0)
-			#self.vbox.pack_end(view, expand=True, fill=True, padding=0)
-			#self.vbox.pack_end(self.selection, expand=False, fill=True, padding=0)
+			#self.vbox.pack_end(self.bottombar, expand = True, fill = True, padding = 0)
+			#self.vbox.pack_end(view, expand = True, fill = True, padding = 0)
+			#self.vbox.pack_end(self.selection, expand = False, fill = True, padding = 0)
 
 		col_dialog.destroy()
 
-	def destroy(self, widget=None, data=None):
+	def destroy(self, widget = None, data = None):
 		try:
 			self.speichereAlles()
 			self.db.close()
@@ -304,20 +297,20 @@ class Multilist(hildonize.get_app_class()):
 		finally:
 			gtk.main_quit()
 
-	def delete_event(self, widget, event, data=None):
+	def delete_event(self, widget, event, data = None):
 		#print "delete event occurred"
 		return False
 
-	def dlg_delete(self, widget, event, data=None):
+	def dlg_delete(self, widget, event, data = None):
 		return False
 
-	def show_about(self, widget=None, data=None):
+	def show_about(self, widget = None, data = None):
 		dialog = gtk.AboutDialog()
 		dialog.set_position(gtk.WIN_POS_CENTER)
 		dialog.set_name(constants.__pretty_app_name__)
 		dialog.set_version(constants.__version__)
 		dialog.set_copyright("")
-		dialog.set_website("http://axique.de/f=Multilist")
+		dialog.set_website("http://axique.de/f = Multilist")
 		comments = "%s is a program to handle multiple lists." % constants.__pretty_app_name__
 		dialog.set_comments(comments)
 		dialog.set_authors(["Christoph Wurstle <n800@axique.net>", "Ed Page <eopage@byu.net> (Blame him for the most recent bugs)"])
@@ -327,7 +320,7 @@ class Multilist(hildonize.get_app_class()):
 	def on_info1_activate(self, menuitem):
 		self.show_about(menuitem)
 
-	def view_sql_history(self, widget=None, data=None, data2=None):
+	def view_sql_history(self, widget = None, data = None, data2 = None):
 		sqldiag = sqldialog.SqlDialog(self.db)
 		res = sqldiag.run()
 		sqldiag.hide()
@@ -358,18 +351,18 @@ class Multilist(hildonize.get_app_class()):
 		finally:
 			sqldiag.destroy()
 
-	def optimizeSQL(self, widget=None, data=None, data2=None):
+	def optimizeSQL(self, widget = None, data = None, data2 = None):
 		#optimiere sql
-		self.db.speichereSQL("VACUUM", log=False)
+		self.db.speichereSQL("VACUUM", log = False)
 
-	def select_db_dialog(self, widget=None, data=None, data2=None):
-		if (isHildon==False):
+	def select_db_dialog(self, widget = None, data = None, data2 = None):
+		if (isHildon == False):
 			dlg = gtk.FileChooserDialog(parent = self.window, action = gtk.FILE_CHOOSER_ACTION_SAVE)
 			dlg.add_button( gtk.STOCK_CANCEL, gtk.RESPONSE_CANCEL)
 			dlg.add_button( gtk.STOCK_OK, gtk.RESPONSE_OK)
 		else:
 			#dlg = hildon.FileChooserDialog(parent = self.window, action = gtk.FILE_CHOOSER_ACTION_SAVE)
-			dlg=hildon.FileChooserDialog(self.window, gtk.FILE_CHOOSER_ACTION_SAVE)
+			dlg = hildon.FileChooserDialog(self.window, gtk.FILE_CHOOSER_ACTION_SAVE)
 
 		if self.db.ladeDirekt('datenbank'):
 			dlg.set_filename(self.db.ladeDirekt('datenbank'))
@@ -392,5 +385,5 @@ def run_multilist():
 
 
 if __name__ == "__main__":
-	logging.basicConfig(level=logging.DEBUG)
+	logging.basicConfig(level = logging.DEBUG)
 	run_multilist()
