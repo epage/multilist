@@ -47,7 +47,7 @@ import constants
 import hildonize
 
 import libspeichern
-import libsqldialog
+import sqldialog
 import libselection
 import libview
 import libliststorehandler
@@ -236,45 +236,45 @@ class Multilist(hildonize.get_app_class()):
 		else:
 			self.window_in_fullscreen = False
 
-	def speichereAlles(self,data=None,data2=None):
+	def speichereAlles(self, data=None, data2=None):
 		logging.info("Speichere alles")
 
-	def ladeAlles(self,data=None,data2=None):
+	def ladeAlles(self, data=None, data2=None):
 		logging.info("Lade alles")
 
-	def beforeSync(self,data=None,data2=None):
+	def beforeSync(self, data=None, data2=None):
 		logging.info("Lade alles")
 
-	def sync_finished(self,data=None,data2=None):
+	def sync_finished(self, data=None, data2=None):
 		self.selection.comboList_changed()
 		self.selection.comboCategory_changed()
 		self.liststorehandler.update_list()
 
 	def prepare_sync_dialog(self):
-		self.sync_dialog = gtk.Dialog(_("Sync"),None,gtk.DIALOG_MODAL | gtk.DIALOG_DESTROY_WITH_PARENT,(gtk.STOCK_OK, gtk.RESPONSE_ACCEPT))
+		self.sync_dialog = gtk.Dialog(_("Sync"), None, gtk.DIALOG_MODAL | gtk.DIALOG_DESTROY_WITH_PARENT, (gtk.STOCK_OK, gtk.RESPONSE_ACCEPT))
 
 		self.sync_dialog.set_position(gtk.WIN_POS_CENTER)
-		sync=libsync.Sync(self.db,self.window,50503)
-		sync.connect("syncFinished",self.sync_finished)
+		sync=libsync.Sync(self.db, self.window, 50503)
+		sync.connect("syncFinished", self.sync_finished)
 		self.sync_dialog.vbox.pack_start(sync, True, True, 0)
-		self.sync_dialog.set_size_request(500,350)
+		self.sync_dialog.set_size_request(500, 350)
 		self.sync_dialog.vbox.show_all()
-		sync.connect("syncFinished",self.sync_finished)
+		sync.connect("syncFinished", self.sync_finished)
 
-	def sync_notes(self,widget=None,data=None):
+	def sync_notes(self, widget=None, data=None):
 		if self.sync_dialog==None:
 			self.prepare_sync_dialog()
 		self.sync_dialog.run()
 		self.sync_dialog.hide()
 
-	def show_columns_dialog(self,widget=None,data=None):
-		col_dialog = gtk.Dialog(_("Choose columns"),self.window,gtk.DIALOG_MODAL | gtk.DIALOG_DESTROY_WITH_PARENT, (gtk.STOCK_CANCEL, gtk.RESPONSE_REJECT, gtk.STOCK_OK, gtk.RESPONSE_ACCEPT))
+	def show_columns_dialog(self, widget=None, data=None):
+		col_dialog = gtk.Dialog(_("Choose columns"), self.window, gtk.DIALOG_MODAL | gtk.DIALOG_DESTROY_WITH_PARENT, (gtk.STOCK_CANCEL, gtk.RESPONSE_REJECT, gtk.STOCK_OK, gtk.RESPONSE_ACCEPT))
 
 		col_dialog.set_position(gtk.WIN_POS_CENTER)
-		cols=libview.Columns_dialog(self.db,self.liststorehandler)
+		cols=libview.Columns_dialog(self.db, self.liststorehandler)
 
 		col_dialog.vbox.pack_start(cols, True, True, 0)
-		col_dialog.set_size_request(500,350)
+		col_dialog.set_size_request(500, 350)
 		col_dialog.vbox.show_all()
 
 		resp=col_dialog.run()
@@ -308,10 +308,10 @@ class Multilist(hildonize.get_app_class()):
 		#print "delete event occurred"
 		return False
 
-	def dlg_delete(self,widget,event,data=None):
+	def dlg_delete(self, widget, event, data=None):
 		return False
 
-	def show_about(self, widget=None,data=None):
+	def show_about(self, widget=None, data=None):
 		dialog = gtk.AboutDialog()
 		dialog.set_position(gtk.WIN_POS_CENTER)
 		dialog.set_name(constants.__pretty_app_name__)
@@ -324,14 +324,17 @@ class Multilist(hildonize.get_app_class()):
 		dialog.run()
 		dialog.destroy()
 
-	def on_info1_activate(self,menuitem):
+	def on_info1_activate(self, menuitem):
 		self.show_about(menuitem)
 
-	def view_sql_history(self,widget=None,data=None,data2=None):
-		sqldiag=libsqldialog.sqlDialog(self.db)
-		res=sqldiag.run()
+	def view_sql_history(self, widget=None, data=None, data2=None):
+		sqldiag = sqldialog.SqlDialog(self.db)
+		res = sqldiag.run()
 		sqldiag.hide()
-		if res==444:
+
+		try:
+			if res != gtk.RESPONSE_OK:
+				return
 			logging.info("exporting sql")
 
 			if not isHildon:
@@ -342,24 +345,24 @@ class Multilist(hildonize.get_app_class()):
 				dlg.add_button( gtk.STOCK_CANCEL, gtk.RESPONSE_CANCEL)
 				dlg.add_button( gtk.STOCK_OK, gtk.RESPONSE_OK)
 			else:
-				#dlg = hildon.FileChooserDialog(parent = self.window, action = gtk.FILE_CHOOSER_ACTION_SAVE)
-				dlg=hildon.FileChooserDialog(self.window, gtk.FILE_CHOOSER_ACTION_SAVE)
+				dlg = hildon.FileChooserDialog(self.window, gtk.FILE_CHOOSER_ACTION_SAVE)
 
 			dlg.set_title(_("Select SQL export file"))
-			if dlg.run() == gtk.RESPONSE_OK:
-				fileName = dlg.get_filename()
+			exportFileResponse = dlg.run()
+			try:
+				if exportFileResponse == gtk.RESPONSE_OK:
+					fileName = dlg.get_filename()
+					sqldiag.exportSQL(fileName)
+			finally:
 				dlg.destroy()
-				sqldiag.exportSQL(fileName)
-			else:
-				dlg.destroy()
+		finally:
+			sqldiag.destroy()
 
-		sqldiag.destroy()
-
-	def optimizeSQL(self,widget=None,data=None,data2=None):
+	def optimizeSQL(self, widget=None, data=None, data2=None):
 		#optimiere sql
-		self.db.speichereSQL("VACUUM",log=False)
+		self.db.speichereSQL("VACUUM", log=False)
 
-	def select_db_dialog(self,widget=None,data=None,data2=None):
+	def select_db_dialog(self, widget=None, data=None, data2=None):
 		if (isHildon==False):
 			dlg = gtk.FileChooserDialog(parent = self.window, action = gtk.FILE_CHOOSER_ACTION_SAVE)
 			dlg.add_button( gtk.STOCK_CANCEL, gtk.RESPONSE_CANCEL)
@@ -373,7 +376,7 @@ class Multilist(hildonize.get_app_class()):
 		dlg.set_title(_("Choose your database file"))
 		if dlg.run() == gtk.RESPONSE_OK:
 			fileName = dlg.get_filename()
-			self.db.speichereDirekt('datenbank',fileName)
+			self.db.speichereDirekt('datenbank', fileName)
 			self.speichereAlles()
 			self.db.openDB()
 			self.ladeAlles()

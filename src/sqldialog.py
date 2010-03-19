@@ -20,6 +20,8 @@ along with Multilist.  If not, see <http://www.gnu.org/licenses/>.
 Copyright (C) 2008 Christoph Würstle
 """
 
+from __future__ import with_statement
+
 import time
 import gtk
 import logging
@@ -34,16 +36,22 @@ except NameError:
 _moduleLogger = logging.getLogger(__name__)
 
 
-class sqlDialog(gtk.Dialog):
+class SqlDialog(gtk.Dialog):
 
-	def __init__(self,db):
-		self.db=db
+	def __init__(self, db):
+		self.db = db
 
 		_moduleLogger.info("sqldialog, init")
 
-		gtk.Dialog.__init__(self,_("SQL History (the past two days):"),None,gtk.DIALOG_MODAL | gtk.DIALOG_DESTROY_WITH_PARENT,(gtk.STOCK_OK, gtk.RESPONSE_ACCEPT))
+		gtk.Dialog.__init__(
+			self,
+			_("SQL History (the past two days):"),
+			None,
+			gtk.DIALOG_MODAL | gtk.DIALOG_DESTROY_WITH_PARENT,
+			(gtk.STOCK_CLOSE, gtk.RESPONSE_CLOSE)
+		)
 
-		self.add_button(_("Export"), 444)
+		self.add_button(_("Export"), gtk.RESPONSE_OK)
 		self.set_position(gtk.WIN_POS_CENTER)
 
 		self.liststore = gtk.ListStore(str, str, str)
@@ -83,7 +91,7 @@ class sqlDialog(gtk.Dialog):
 		self.treeview.set_reorderable(False)
 
 		scrolled_window = gtk.ScrolledWindow()
-		scrolled_window.set_policy(gtk.POLICY_AUTOMATIC,gtk.POLICY_AUTOMATIC)
+		scrolled_window.set_policy(gtk.POLICY_AUTOMATIC, gtk.POLICY_AUTOMATIC)
 		scrolled_window.add(self.treeview)
 		#self.pack_start(scrolled_window, expand=True, fill=True, padding=0)
 
@@ -93,28 +101,25 @@ class sqlDialog(gtk.Dialog):
 
 		msgstring=""
 		sql="SELECT pcdatum,sql,param FROM logtable WHERE pcdatum>? ORDER BY pcdatum DESC"
-		rows=db.ladeSQL(sql,(time.time()-3*24*3600,))
-		i=0
-		for row in rows:
-			pcdatum,sql,param = row
-			datum=str(time.strftime("%d.%m.%y %H:%M:%S ", (time.localtime(pcdatum))))
-			if len(param)>100:
-				param=param[:20]+_(" (Reduced parameter) ")+param[20:]
-			self.liststore.append([datum, sql,param])
-			i+=1
+		rows=db.ladeSQL(sql, (time.time()-3*24*3600, ))
+		for i, row in enumerate(rows):
 			if (i>50):
 				break
+
+			pcdatum, sql, param = row
+			datum = str(time.strftime("%d.%m.%y %H:%M:%S ", (time.localtime(pcdatum))))
+			if 100 < len(param):
+				param=param[:20]+_(" (Reduced parameter) ")+param[20:]
+			self.liststore.append([datum, sql,param])
 
 		self.set_size_request(500,400)
 
 	def exportSQL(self,filename):
-		f = open(filename, 'w')
-		msgstring=""
-		sql="SELECT pcdatum,sql,param FROM logtable WHERE pcdatum>? ORDER BY pcdatum DESC"
-		rows=self.db.ladeSQL(sql,(time.time()-2*24*3600,))
-		for row in rows:
-			pcdatum,sql,param = row
-			datum=str(time.strftime("%d.%m.%y %H:%M:%S ", (time.localtime(pcdatum))))
-			f.write( datum +"\t" + sql + "\t\t" + param+ "\n")
-
-		f.close()
+		with open(filename, 'w') as f:
+			msgstring=""
+			sql="SELECT pcdatum,sql,param FROM logtable WHERE pcdatum>? ORDER BY pcdatum DESC"
+			rows=self.db.ladeSQL(sql,(time.time()-2*24*3600,))
+			for row in rows:
+				pcdatum,sql,param = row
+				datum=str(time.strftime("%d.%m.%y %H:%M:%S ", (time.localtime(pcdatum))))
+				f.write( datum +"\t" + sql + "\t\t" + param+ "\n")
