@@ -37,15 +37,13 @@ except NameError:
 _moduleLogger = logging.getLogger(__name__)
 
 
-class Bottombar(gtk.HBox):
+class Bottombar(gtk.VBox):
 
 	__gsignals__ = {
-		'changed' : (gobject.SIGNAL_RUN_LAST, gobject.TYPE_NONE, (gobject.TYPE_STRING, gobject.TYPE_STRING)),
-		#'changedCategory': (gobject.SIGNAL_RUN_LAST, gobject.TYPE_NONE, (gobject.TYPE_STRING, gobject.TYPE_STRING))
 	}
 
 	def __init__(self, db, view, isHildon):
-		gtk.HBox.__init__(self, homogeneous = False, spacing = 3)
+		gtk.VBox.__init__(self, homogeneous = False, spacing = 3)
 
 		self.db = db
 		self.isHildon = isHildon
@@ -53,16 +51,16 @@ class Bottombar(gtk.HBox):
 
 		_moduleLogger.info("libBottomBar, init")
 
-		button = gtk.Button(_("New item"))
-		button.connect("clicked", self.new_item)
-		self.pack_start(button, expand = False, fill = True, padding = 0)
+		buttonHBox = gtk.HBox()
+		self.pack_start(buttonHBox, expand = False, fill = True, padding = 3)
 
-		label = gtk.Label("  ")
-		self.pack_start(label, expand = True, fill = True, padding = 0)
+		button = gtk.Button(stock = gtk.STOCK_ADD)
+		button.connect("clicked", self.new_item, None)
+		buttonHBox.pack_start(button, expand = True, fill = True, padding = 3)
 
-		button = gtk.Button(_("Del item"))
-		button.connect("clicked", self.del_item)
-		self.pack_start(button, expand = False, fill = True, padding = 0)
+		button = gtk.Button(stock = gtk.STOCK_DELETE)
+		button.connect("clicked", self.del_item, None)
+		buttonHBox.pack_start(button, expand = True, fill = True, padding = 3)
 
 	@gtk_toolbox.log_exception(_moduleLogger)
 	def new_item(self, widget = None, data1 = None, data2 = None):
@@ -108,13 +106,11 @@ class Bottombar(gtk.HBox):
 		dialog.vbox.pack_start(entryKlasse, True, True, 0)
 
 		dialog.vbox.show_all()
-		#dialog.set_size_request(400, 300)
 
 		if dialog.run() == gtk.RESPONSE_ACCEPT:
 			_moduleLogger.info("new category name "+entryKlasse.get_text())
 			self.view.liststorehandler.rename_category(entryKlasse.get_text())
 		else:
-			#print "Cancel", res
 			pass
 		dialog.destroy()
 
@@ -128,12 +124,10 @@ class Bottombar(gtk.HBox):
 		dialog.vbox.pack_start(entryKlasse, True, True, 0)
 
 		dialog.vbox.show_all()
-		#dialog.set_size_request(400, 300)
 
 		if dialog.run() == gtk.RESPONSE_ACCEPT:
 			_moduleLogger.info("new list name "+entryKlasse.get_text())
 			self.view.liststorehandler.rename_list(entryKlasse.get_text())
 		else:
-			#print "Cancel", res
 			pass
 		dialog.destroy()
