@@ -123,6 +123,10 @@ class Multilist(hildonize.get_app_class()):
 			categorymenu.append(menu_items)
 			menu_items.connect("activate", self._on_toggle_search)
 
+			menu_items = gtk.MenuItem(_("Checkout All"))
+			categorymenu.append(menu_items)
+			menu_items.connect("activate", self._on_checkout_all)
+
 			category_menu = gtk.MenuItem(_("Category"))
 			category_menu.show()
 			category_menu.set_submenu(categorymenu)
@@ -246,6 +250,10 @@ class Multilist(hildonize.get_app_class()):
 		self._search.hide()
 		self.prepare_sync_dialog()
 		self.ladeAlles()
+
+	@gtk_toolbox.log_exception(_moduleLogger)
+	def _on_checkout_all(self, widget):
+		self.liststorehandler.checkout_rows()
 
 	@gtk_toolbox.log_exception(_moduleLogger)
 	def _on_search(self, widget):
