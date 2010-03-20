@@ -24,6 +24,9 @@ __changelog__ = """
 0.3.2
 * Cleaned up some code
 * Moved Active/All filter to menu
+* Switched to search bar
+* Moved Checkout All to menu
+* Fremantlized the menu
 
 0.3.1
 * I18N, extract de.po, add ru.po.
