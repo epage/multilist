@@ -182,7 +182,28 @@ class Multilist(hildonize.get_app_class()):
 			menu_bar,
 		)
 		if hildonize.IS_FREMANTLE_SUPPORTED:
-			pass
+			renameCategoryButton = gtk.Button(_("Rename Category"))
+			renameCategoryButton.connect("clicked", self.bottombar.rename_category)
+			menuBar.append(renameCategoryButton)
+
+			renameListButton= gtk.Button(_("Rename List"))
+			renameListButton.connect("clicked", self.bottombar.rename_list)
+			menuBar.append(renameListButton)
+
+			button = hildonize.hildon.GtkRadioButton(gtk.HILDON_SIZE_AUTO, None)
+			button.set_label("All")
+			menuBar.add_filter(button)
+			button.connect("clicked", self._on_click_menu_filter, self.liststorehandler.SHOW_ALL)
+			button.set_mode(False)
+			filterGroup = button
+
+			button = hildonize.hildon.GtkRadioButton(gtk.HILDON_SIZE_AUTO, filterGroup)
+			button.set_label("Active")
+			menuBar.add_filter(button)
+			button.connect("clicked", self._on_click_menu_filter, self.liststorehandler.SHOW_ACTIVE)
+			button.set_mode(False)
+
+			menuBar.show_all()
 
 		if not hildonize.IS_HILDON_SUPPORTED:
 			_moduleLogger.info("No hildonization support")
@@ -205,6 +226,10 @@ class Multilist(hildonize.get_app_class()):
 		self.window.show_all()
 		self.prepare_sync_dialog()
 		self.ladeAlles()
+
+	@gtk_toolbox.log_exception(_moduleLogger)
+	def _on_click_menu_filter(self, button, val):
+		self.liststorehandler.set_filter(val)
 
 	@gtk_toolbox.log_exception(_moduleLogger)
 	def _on_toggle_filter(self, *args):
