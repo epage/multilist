@@ -383,43 +383,9 @@ class View(gtk.VBox):
 		self.scrolled_window = None
 		self.reload_view()
 
-		"""
-		bearbeitenFrame = gtk.Frame("Verteilung kopieren nach")
-		bearbeitenvBox = gtk.VBox(homogeneous = False, spacing = 0)
-		
-		bearbeitenhBox = gtk.HBox(homogeneous = False, spacing = 0)
-		self.comboKlassen = gtk.combo_box_new_text()
-		bearbeitenhBox.pack_start(self.comboKlassen, expand = False, fill = True, padding = 0)
-		button = gtk.Button("Kopieren")
-		button.connect("clicked", self.kopiereStoffverteilung, None)
-		bearbeitenhBox.pack_start(button, expand = False, fill = True, padding = 0)
-		
-		label = gtk.Label("   ")
-		bearbeitenhBox.pack_start(label, expand = False, fill = True, padding = 0)
-		
-		button = gtk.Button("Export in CSV-Datei")
-		button.connect("clicked", self.exportStoffverteilung, None)
-		bearbeitenhBox.pack_start(button, expand = False, fill = True, padding = 0)
-		
-		bearbeitenvBox.pack_start(bearbeitenhBox, expand = False, fill = True, padding = 0)
-		
-	
-		bearbeitenFrame.add(bearbeitenvBox)
-		self.pack_start(bearbeitenFrame, expand = False, fill = True, padding = 0)
-		"""
-
-		#self.connect("unmap", self.speichere) 
-		#self.connect("map", self.ladeWirklich) 
-
-		#self.show_all()
-
-		#print "libstoffverteilung 9: ", time.clock()
-
 	def loadList(self):
 		ls = self.liststorehandler.get_liststore()
 		self.treeview.set_model(ls)
-		#self.tvcolumn[i].add_attribute( self.cell[i], "active", 1)
-		#print "setup", ls
 
 	def col_edited(self, cell, irow, new_text, icol = None):
 		if (irow != 4):
@@ -428,7 +394,6 @@ class View(gtk.VBox):
 			print cell, irow, new_text, icol
 
 	def col_toggled(self, widget, irow, status ):
-		#print irow, ls[irow][1], status
 		ls = self.treeview.get_model()
 
 		if self.liststorehandler.get_filter() == self.liststorehandler.SHOW_ACTIVE:
@@ -444,24 +409,18 @@ class View(gtk.VBox):
 			else:
 				self.liststorehandler.update_row(irow, 1, "0")
 
-		#self.tvcolumn[i].set_attributes( self.cell[i], active = i)
-
 	def convert(self, s):
-		#print s
-		if (s == "1"):
+		if s == "1":
 			return 1
 		else:
 			return 0
 
 	def del_active_row(self):
 		path, col = self.treeview.get_cursor()
-		#print path, col
 		if path is not None:
 			irow = path[0]
 			row_iter = self.treeview.get_model().get_iter(path)
 			self.liststorehandler.del_row(irow, row_iter)
-
-		#treemodel.get_iter()
 
 	def sort_func_function(self, model, iter1, iter2, data = None):
 		print "sorting"
@@ -487,7 +446,7 @@ class View(gtk.VBox):
 			if self.db.ladeDirekt("showcol_"+str(self.liststorehandler.get_colname(i)), default) == "1":
 				if (i == 1):
 					self.cell[i] = CellRendererTriple()
-					self.tvcolumn[i] = 	gtk.TreeViewColumn(self.liststorehandler.get_colname(i), self.cell[i])
+					self.tvcolumn[i] = 	gtk.TreeViewColumn("", self.cell[i])
 					self.cell[i].connect( 'status_changed', self.col_toggled)
 					self.tvcolumn[i].set_attributes( self.cell[i], status = i)
 				elif (i == 3)or(i == 4)or(i == 6):

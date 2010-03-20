@@ -49,25 +49,12 @@ class Liststorehandler(object):
 		self.selection = selection
 		self.collist = ("uid", "status", "title", "quantitiy", "unit", "price", "priority", "date", "private", "stores", "note", "custom1", "custom2")
 
-		#sql = "DROP TABLE items"
-		#self.db.speichereSQL(sql)
-
 		sql = "CREATE TABLE items (uid TEXT, list TEXT, category TEXT, status TEXT, title TEXT, quantitiy TEXT, unit TEXT, price TEXT, priority TEXT, date TEXT, pcdate TEXT, private TEXT, stores TEXT, note TEXT, custom1 TEXT, custom2 TEXT)"
 		self.db.speichereSQL(sql)
 
 		self.selection.load()
 		self.selection.connect("changed", self.update_list)
 		#self.selection.connect("changedCategory", self.update_category)
-
-		"""
-		sql = "INSERT INTO items (uid, list, category, title) VALUES (?, ?, ?, ?)"
-		import uuid
-		self.db.speichereSQL(sql, (str(uuid.uuid4()), "default", "default", "atitel1"))
-		self.db.speichereSQL(sql, (str(uuid.uuid4()), "default", "default", "btitel2"))
-		self.db.speichereSQL(sql, (str(uuid.uuid4()), "default", "default", "ctitel3"))
-		
-		print "inserted"
-		"""
 
 	def set_filter(self, filter):
 		assert filter in self.ALL_FILTERS
@@ -127,10 +114,6 @@ class Liststorehandler(object):
 					pass
 					#unit = ""
 				self.liststore.append([uid, status, title, quantitiy, unit, price, priority, date, private, stores, note, custom1, custom2])
-			#else:
-			#self.liststore.append(["-1", "-1", "", " ", "", "", "", "", "", "", "", "", ""])	
-		#import uuid
-		#self.liststore.append(["-1", "-1", "", "", "", "", "", "", "", "", "", "", ""])
 
 		return self.liststore
 
@@ -141,10 +124,6 @@ class Liststorehandler(object):
 		return False
 
 	def update_row(self, irow, icol, new_text):
-		#print "liststore 1"
-		#for x in self.liststore:
-		#	print x[0], x[2]
-
 		if -1 < irow and self.liststore[irow][0] != "-1" and self.liststore[irow][0] is not None:
 			sql = "UPDATE items SET "+self.collist[icol]+" = ? WHERE uid = ?"
 			self.db.speichereSQL(sql, (new_text, self.liststore[irow][0]), rowid = self.liststore[irow][0])
@@ -155,13 +134,6 @@ class Liststorehandler(object):
 		else:
 			_moduleLogger.warning("update_row: row does not exist")
 			return
-			#if (self.emptyValueExists() == True)and(icol<2):
-			#	#print "letzter Eintrag ohne inhalt"
-			#	return
-
-		#print "liststore 2"
-		#for x in self.liststore:
-		#	print x[0], x[2]
 
 	def checkout_rows(self):
 		sql = "UPDATE items SET status = ? WHERE list = ? AND category LIKE ? AND status = ?"
@@ -171,27 +143,15 @@ class Liststorehandler(object):
 				self.liststore[i][1] = "-1"
 
 	def add_row(self, title = ""):
-		#self.update_row(-1, 1, "-1")
-		#for x in self.liststore:
-		#	print x[0], x[2]
 		status = self.__calculate_status()
 		import uuid
 		uid = str(uuid.uuid4())
 		sql = "INSERT INTO items (uid, list, category, status, title) VALUES (?, ?, ?, ?, ?)"
 		self.db.speichereSQL(sql, (uid, self.selection.get_list(), self.selection.get_category(), status, title), rowid = uid)
 		_moduleLogger.info("Insertet row: status = "+status+" with uid "+str(uid))
-			#self.liststore[irow][0] = str(uuid.uuid4())
 
 		self.liststore.append([uid, status, title, " ", "", "", "", "", "", "", "", "", ""])
 		self.selection.comboLists_check_for_update()
-		#	if (irow>-1):
-		#		self.liststore[irow][icol] = new_text
-		#		self.liststore[irow][0] = uid
-		#	else:
-		#		self.liststore.append([uid, "-1", "", " ", "", "", "", "", "", "", "", "", ""])
-				#print "xy", self.liststore[len(self.liststore)-1][0]
-			#Check if a new list/category is opened
-		#	self.selection.comboLists_check_for_update()
 
 	def del_row(self, irow, row_iter):
 		uid = self.liststore[irow][0]
