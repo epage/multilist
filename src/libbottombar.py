@@ -60,15 +60,6 @@ class Bottombar(gtk.HBox):
 		label = gtk.Label("  ")
 		self.pack_start(label, expand = True, fill = True, padding = 0)
 
-		label = gtk.Label(_("Search:"))
-		self.pack_start(label, expand = False, fill = True, padding = 0)
-		searchEntry = gtk.Entry()
-		searchEntry.connect("changed", self.search_list)
-		self.pack_start(searchEntry, expand = True, fill = True, padding = 0)
-
-		label = gtk.Label("  ")
-		self.pack_start(label, expand = True, fill = True, padding = 0)
-
 		button = gtk.Button(_("Checkout all items"))
 		button.connect("clicked", self.checkout_items)
 		self.pack_start(button, expand = False, fill = True, padding = 0)
@@ -124,10 +115,6 @@ class Bottombar(gtk.HBox):
 			#for i in range(n):
 			#	self.view.liststorehandler.checkout_rows()
 			#	#print i
-
-	@gtk_toolbox.log_exception(_moduleLogger)
-	def search_list(self, widget = None, data1 = None, data2 = None):
-		self.view.liststorehandler.get_liststore(widget.get_text())
 
 	@gtk_toolbox.log_exception(_moduleLogger)
 	def rename_category(self, widget = None, data1 = None, data2 = None):

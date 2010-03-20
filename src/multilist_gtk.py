@@ -41,6 +41,7 @@ import hildonize
 import gtk_toolbox
 
 import libspeichern
+import search
 import sqldialog
 import libselection
 import libview
@@ -83,6 +84,7 @@ class Multilist(hildonize.get_app_class()):
 		self.vbox = gtk.VBox(homogeneous = False, spacing = 0)
 
 		self.selection = libselection.Selection(self.db, isHildon)
+		self._search = search.Search()
 		self.liststorehandler = libliststorehandler.Liststorehandler(self.db, self.selection)
 		self.view = libview.View(self.db, self.liststorehandler, self.window)
 		self.bottombar = libbottombar.Bottombar(self.db, self.view, isHildon)
@@ -114,6 +116,16 @@ class Multilist(hildonize.get_app_class()):
 			fileMenuItem = gtk.MenuItem(_("File"))
 			fileMenuItem.show()
 			fileMenuItem.set_submenu(fileMenu)
+
+			categorymenu = gtk.Menu()
+
+			menu_items = gtk.MenuItem(_("Search"))
+			categorymenu.append(menu_items)
+			menu_items.connect("activate", self._on_toggle_search)
+
+			category_menu = gtk.MenuItem(_("Category"))
+			category_menu.show()
+			category_menu.set_submenu(categorymenu)
 
 			viewMenu = gtk.Menu()
 
@@ -156,6 +168,7 @@ class Multilist(hildonize.get_app_class()):
 			menu_bar.show()
 			menu_bar.append (fileMenuItem)
 			menu_bar.append (toolsMenuItem)
+			menu_bar.append (category_menu)
 			menu_bar.append (viewMenuItem)
 			# unten -> damit als letztes menu_bar.append (helpMenuItem)
 			#Als letztes menü
@@ -168,6 +181,7 @@ class Multilist(hildonize.get_app_class()):
 			self.vbox.pack_start(menuBar, False, False, 0)
 
 		#add to vbox below (to get it on top)
+		self.vbox.pack_end(self._search, expand = False, fill = True)
 		self.vbox.pack_end(self.bottombar, expand = False, fill = True, padding = 0)
 		self.vbox.pack_end(self.view, expand = True, fill = True, padding = 0)
 		self.vbox.pack_end(self.selection, expand = False, fill = True, padding = 0)
@@ -182,14 +196,6 @@ class Multilist(hildonize.get_app_class()):
 			menu_bar,
 		)
 		if hildonize.IS_FREMANTLE_SUPPORTED:
-			renameCategoryButton = gtk.Button(_("Rename Category"))
-			renameCategoryButton.connect("clicked", self.bottombar.rename_category)
-			menuBar.append(renameCategoryButton)
-
-			renameListButton= gtk.Button(_("Rename List"))
-			renameListButton.connect("clicked", self.bottombar.rename_list)
-			menuBar.append(renameListButton)
-
 			button = hildonize.hildon.GtkRadioButton(gtk.HILDON_SIZE_AUTO, None)
 			button.set_label("All")
 			menuBar.add_filter(button)
@@ -202,6 +208,18 @@ class Multilist(hildonize.get_app_class()):
 			menuBar.add_filter(button)
 			button.connect("clicked", self._on_click_menu_filter, self.liststorehandler.SHOW_ACTIVE)
 			button.set_mode(False)
+
+			renameCategoryButton = gtk.Button(_("Rename Category"))
+			renameCategoryButton.connect("clicked", self.bottombar.rename_category)
+			menuBar.append(renameCategoryButton)
+
+			renameListButton= gtk.Button(_("Rename List"))
+			renameListButton.connect("clicked", self.bottombar.rename_list)
+			menuBar.append(renameListButton)
+
+			searchButton= gtk.Button(_("Search Category"))
+			searchButton.connect("clicked", self._on_toggle_search)
+			menuBar.append(searchButton)
 
 			menuBar.show_all()
 
@@ -222,14 +240,30 @@ class Multilist(hildonize.get_app_class()):
 		self.window.connect("destroy", self.destroy)
 		self.window.connect("key-press-event", self.on_key_press)
 		self.window.connect("window-state-event", self.on_window_state_change)
+		self._search.connect("search_changed", self._on_search)
 
 		self.window.show_all()
+		self._search.hide()
 		self.prepare_sync_dialog()
 		self.ladeAlles()
 
 	@gtk_toolbox.log_exception(_moduleLogger)
+	def _on_search(self, widget):
+		self.liststorehandler.get_liststore(self._search.get_search_pattern())
+
+	@gtk_toolbox.log_exception(_moduleLogger)
 	def _on_click_menu_filter(self, button, val):
 		self.liststorehandler.set_filter(val)
+
+	def _toggle_search(self):
+		if self._search.get_property("visible"):
+			self._search.hide()
+		else:
+			self._search.show()
+
+	@gtk_toolbox.log_exception(_moduleLogger)
+	def _on_toggle_search(self, *args):
+		self._toggle_search()
 
 	@gtk_toolbox.log_exception(_moduleLogger)
 	def _on_toggle_filter(self, *args):
@@ -254,9 +288,9 @@ class Multilist(hildonize.get_app_class()):
 			else:
 				self.window.fullscreen ()
 			return True
-		#elif event.keyval == gtk.keysyms.f and isCtrl:
-		#	self._toggle_search()
-		#	return True
+		elif event.keyval == gtk.keysyms.f and isCtrl:
+			self._toggle_search()
+			return True
 		elif (
 			event.keyval in (gtk.keysyms.w, gtk.keysyms.q) and
 			event.get_state() & gtk.gdk.CONTROL_MASK
