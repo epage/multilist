@@ -21,11 +21,15 @@ __email__ = "n800@axique.net"
 __version__ = constants.__version__
 __build__ = constants.__build__
 __changelog__ = """
+0.3.2
+* Cleaned up some code
+* Moved Active/All filter to menu
+
 0.3.1
-  * I18N, extract de.po, add ru.po.
+* I18N, extract de.po, add ru.po.
 
 0.3.0
-  * Initial Release.
+* Initial Release.
 """
 
 

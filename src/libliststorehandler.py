@@ -37,8 +37,13 @@ _moduleLogger = logging.getLogger(__name__)
 
 class Liststorehandler(object):
 
+	SHOW_ALL = "all"
+	SHOW_ACTIVE = "active"
+	ALL_FILTERS = (SHOW_ALL, SHOW_ACTIVE)
+
 	def __init__(self, db, selection):
 		self.db = db
+		self.__filter = self.SHOW_ALL
 		self.liststore = None
 		self.unitsstore = None
 		self.selection = selection
@@ -64,6 +69,14 @@ class Liststorehandler(object):
 		print "inserted"
 		"""
 
+	def set_filter(self, filter):
+		assert filter in self.ALL_FILTERS
+		self.__filter = filter
+		self.update_list()
+
+	def get_filter(self):
+		return self.__filter
+
 	def get_unitsstore(self):
 		if (self.unitsstore == None):
 			self.unitsstore = gtk.ListStore(str, str, str, str, str,  str, str, str, str, str, str, str, str)
@@ -85,6 +98,13 @@ class Liststorehandler(object):
 
 		return self.unitsstore
 
+	def __calculate_status(self):
+		if self.__filter == self.SHOW_ACTIVE:
+			status = "0"
+		else:
+			status = "-1"
+		return status
+
 	def get_liststore(self, titlesearch = ""):
 		if (self.liststore == None):
 			self.liststore = gtk.ListStore(str, str, str, str, str,  str, str, str, str, str, str, str, str)
@@ -92,15 +112,15 @@ class Liststorehandler(object):
 
 		titlesearch = titlesearch+"%"
 
-		if (self.selection.get_status() == "0"): #only 0 and 1 (active items)
-			sql = "SELECT uid, status, title, quantitiy, unit, price, priority, date, private, stores, note, custom1, custom2 FROM items WHERE list = ? AND category LIKE ? AND status> = ? AND title like ? ORDER BY category, status, title"
-			rows = self.db.ladeSQL(sql, (self.selection.get_list(), self.selection.get_category(True), self.selection.get_status(), titlesearch))
+		if self.__filter == self.SHOW_ACTIVE:
+			status = self.__calculate_status()
+			sql = "SELECT uid, status, title, quantitiy, unit, price, priority, date, private, stores, note, custom1, custom2 FROM items WHERE list = ? AND category LIKE ? AND status = ? AND title like ? ORDER BY category, status, title"
+			rows = self.db.ladeSQL(sql, (self.selection.get_list(), self.selection.get_category(True), status, titlesearch))
 		else:
 			sql = "SELECT uid, status, title, quantitiy, unit, price, priority, date, private, stores, note, custom1, custom2 FROM items WHERE list = ? AND category LIKE ? AND title LIKE ? ORDER BY category, title ASC"
 			rows = self.db.ladeSQL(sql, (self.selection.get_list(), self.selection.get_category(True), titlesearch))
 
-		#print rows
-		if ((rows is not None) and (len(rows) > 0)):
+		if rows is not None:
 			for row in rows:
 				uid, status, title, quantitiy, unit, price, priority, date, private, stores, note, custom1, custom2 = row
 				if unit == None:
@@ -154,7 +174,7 @@ class Liststorehandler(object):
 		#self.update_row(-1, 1, "-1")
 		#for x in self.liststore:
 		#	print x[0], x[2]
-		status = self.selection.get_status()
+		status = self.__calculate_status()
 		import uuid
 		uid = str(uuid.uuid4())
 		sql = "INSERT INTO items (uid, list, category, status, title) VALUES (?, ?, ?, ?, ?)"

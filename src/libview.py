@@ -431,7 +431,7 @@ class View(gtk.VBox):
 		#print irow, ls[irow][1], status
 		ls = self.treeview.get_model()
 
-		if self.liststorehandler.selection.get_status() == "0":
+		if self.liststorehandler.get_filter() == self.liststorehandler.SHOW_ACTIVE:
 			if ls[irow][1] == "0":
 				self.liststorehandler.update_row(irow, 1, "1")
 			else:

@@ -89,67 +89,77 @@ class Multilist(hildonize.get_app_class()):
 
 		#Menue
 		if hildonize.GTK_MENU_USED:
-			dateimenu = gtk.Menu()
+			fileMenu = gtk.Menu()
 
 			menu_items = gtk.MenuItem(_("Choose database file"))
-			dateimenu.append(menu_items)
 			menu_items.connect("activate", self.select_db_dialog, None)
+			fileMenu.append(menu_items)
 
 			menu_items = gtk.MenuItem(_("SQL history"))
-			dateimenu.append(menu_items)
 			menu_items.connect("activate", self.view_sql_history, None)
+			fileMenu.append(menu_items)
 
 			menu_items = gtk.MenuItem(_("SQL optimize"))
-			dateimenu.append(menu_items)
 			menu_items.connect("activate", self.optimizeSQL, None)
+			fileMenu.append(menu_items)
 
 			menu_items = gtk.MenuItem(_("Sync items"))
-			dateimenu.append(menu_items)
 			menu_items.connect("activate", self.sync_notes, None)
+			fileMenu.append(menu_items)
 
 			menu_items = gtk.MenuItem(_("Quit"))
-			dateimenu.append(menu_items)
 			menu_items.connect("activate", self.destroy, None)
-			#menu_items.show()
+			fileMenu.append(menu_items)
 
-			datei_menu = gtk.MenuItem(_("File"))
-			datei_menu.show()
-			datei_menu.set_submenu(dateimenu)
+			fileMenuItem = gtk.MenuItem(_("File"))
+			fileMenuItem.show()
+			fileMenuItem.set_submenu(fileMenu)
 
-			toolsmenu = gtk.Menu()
+			viewMenu = gtk.Menu()
+
+			menu_items = gtk.MenuItem(_("Show Active"))
+			menu_items.connect("activate", self._on_toggle_filter, None)
+			viewMenu.append(menu_items)
+
+			viewMenuItem = gtk.MenuItem(_("View"))
+			viewMenuItem.show()
+			viewMenuItem.set_submenu(viewMenu)
+
+			toolsMenu = gtk.Menu()
 
 			menu_items = gtk.MenuItem(_("Choose columns"))
-			toolsmenu.append(menu_items)
 			menu_items.connect("activate", self.show_columns_dialog, None)
+			toolsMenu.append(menu_items)
 
 			menu_items = gtk.MenuItem(_("Rename Category"))
-			toolsmenu.append(menu_items)
 			menu_items.connect("activate", self.bottombar.rename_category, None)
+			toolsMenu.append(menu_items)
 
 			menu_items = gtk.MenuItem(_("Rename List"))
-			toolsmenu.append(menu_items)
 			menu_items.connect("activate", self.bottombar.rename_list, None)
+			toolsMenu.append(menu_items)
 
-			tools_menu = gtk.MenuItem(_("Tools"))
-			tools_menu.show()
-			tools_menu.set_submenu(toolsmenu)
+			toolsMenuItem = gtk.MenuItem(_("Tools"))
+			toolsMenuItem.show()
+			toolsMenuItem.set_submenu(toolsMenu)
 
-			hilfemenu = gtk.Menu()
+			helpMenu = gtk.Menu()
 			menu_items = gtk.MenuItem(_("About"))
-			hilfemenu.append(menu_items)
+			helpMenu.append(menu_items)
 			menu_items.connect("activate", self.show_about, None)
 
-			hilfe_menu = gtk.MenuItem(_("Help"))
-			hilfe_menu.show()
-			hilfe_menu.set_submenu(hilfemenu)
+			helpMenuItem = gtk.MenuItem(_("Help"))
+			helpMenuItem.show()
+			helpMenuItem.set_submenu(helpMenu)
 
 			menu_bar = gtk.MenuBar()
 			menu_bar.show()
-			menu_bar.append (datei_menu)
-			menu_bar.append (tools_menu)
-			# unten -> damit als letztes menu_bar.append (hilfe_menu)
+			menu_bar.append (fileMenuItem)
+			menu_bar.append (toolsMenuItem)
+			menu_bar.append (viewMenuItem)
+			# unten -> damit als letztes menu_bar.append (helpMenuItem)
 			#Als letztes menü
-			menu_bar.append (hilfe_menu)
+			menu_bar.append (helpMenuItem)
 
 			self.vbox.pack_start(menu_bar, False, False, 0)
 		else:
@@ -195,6 +205,15 @@ class Multilist(hildonize.get_app_class()):
 		self.window.show_all()
 		self.prepare_sync_dialog()
 		self.ladeAlles()
+
+	@gtk_toolbox.log_exception(_moduleLogger)
+	def _on_toggle_filter(self, *args):
+		if self.liststorehandler.get_filter() == self.liststorehandler.SHOW_ALL:
+			self.liststorehandler.set_filter(self.liststorehandler.SHOW_ACTIVE)
+		elif self.liststorehandler.get_filter() == self.liststorehandler.SHOW_ACTIVE:
+			self.liststorehandler.set_filter(self.liststorehandler.SHOW_ALL)
+		else:
+			assert False, "Unknown"
 
 	@gtk_toolbox.log_exception(_moduleLogger)
 	def on_key_press(self, widget, event, *args):

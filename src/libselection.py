@@ -69,15 +69,6 @@ class Selection(gtk.HBox):
 		self.comboList.connect("changed", self.comboList_changed, None)
 		self.comboCategory.connect("changed", self.comboCategory_changed, None)
 
-		label = gtk.Label(_("  View:"))
-		self.pack_start(label, expand = False, fill = True, padding = 0)
-
-		self.radio_all = gtk.RadioButton(group = None, label = _("All"), use_underline = True)
-		self.pack_start(self.radio_all, expand = False, fill = True, padding = 0)
-		self.radio_active = gtk.RadioButton(group = self.radio_all, label = _("Active"), use_underline = True)
-		self.pack_start(self.radio_active, expand = False, fill = True, padding = 0)
-		self.radio_all.connect("toggled", self.radioActive_changed, None)
-
 	def load(self):
 		model = self.comboList.get_model()
 		model.clear()
@@ -130,10 +121,6 @@ class Selection(gtk.HBox):
 		if self.comboCategory.get_active()>-1:
 			self.db.speichereDirekt("comboCategoryText"+self.comboList.get_child().get_text(), self.comboCategory.get_child().get_text())
 
-	@gtk_toolbox.log_exception(_moduleLogger)
-	def radioActive_changed(self, widget, data = None):
-		self.emit("changed", "radio", "")
-
 	def comboLists_check_for_update(self):
 		if self.comboCategory.get_active() == -1:
 			model = self.comboCategory.get_model()
@@ -168,12 +155,13 @@ class Selection(gtk.HBox):
 	def get_category(self, select = False):
 		s = self.comboCategory.get_child().get_text()
 		if s == _("all"):
-			if (select == False):
+			if not select:
 				return "undefined"
 			else:
 				return "%"
 		else:
 			return s
+
 	def set_category(self, category):
 		self.comboCategory.get_child().set_text(category)
 
@@ -182,10 +170,3 @@ class Selection(gtk.HBox):
 
 	def get_list(self):
 		return self.comboList.get_child().get_text()
-
-	def get_status(self):
-		#return self.comboCategory.get_child().get_text()
-		if self.radio_all.get_active() == True:
-			return "-1"
-		else:
-			return "0"
