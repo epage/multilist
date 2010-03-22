@@ -27,6 +27,7 @@ import gobject
 import gtk
 
 import gtk_toolbox
+import hildonize
 
 try:
 	_
@@ -62,12 +63,12 @@ class Selection(gtk.HBox):
 		label = gtk.Label(_("  Category:"))
 		self.pack_start(label, expand = False, fill = True, padding = 0)
 
-		self.comboCategory = gtk.combo_box_entry_new_text()
-		self.comboCategory.set_size_request(180, -1)
-		self.pack_start(self.comboCategory, expand = False, fill = True, padding = 0)
+		self.__categories = []
+		self.__categoryButton = gtk.Button("")
+		self.__categoryButton.connect("clicked", self._on_category_selector)
+		self.pack_start(self.__categoryButton, expand = False, fill = True, padding = 0)
 
 		self.comboList.connect("changed", self.comboList_changed, None)
-		self.comboCategory.connect("changed", self.comboCategory_changed, None)
 
 	def load(self):
 		model = self.comboList.get_model()
@@ -89,49 +90,45 @@ class Selection(gtk.HBox):
 			self.comboList.set_active(0)
 
 	@gtk_toolbox.log_exception(_moduleLogger)
+	def _on_category_selector(self, *args):
+		window = gtk_toolbox.find_parent_window(self)
+		userSelection = hildonize.touch_selector_entry(
+			window,
+			"Categories",
+			self.__categories,
+			self.get_category(),
+		)
+		self.set_category(userSelection)
+		self.emit("changed", "category", "")
+		self.db.speichereDirekt("comboCategoryText"+self.comboList.get_child().get_text(), self.__categoryButton.get_label())
+		self._update_categories()
+
+	@gtk_toolbox.log_exception(_moduleLogger)
 	def comboList_changed(self, widget = None, data = None):
-		#self.comboCategory.set_model(None)
-		#print "reload categories"
-		while len(self.comboCategory.get_model())>0:
-			self.comboCategory.remove_text(0)
-
-		sql = "SELECT DISTINCT category FROM items WHERE list = ? ORDER BY category"
-		rows = self.db.ladeSQL(sql, (self.get_list(), ))
-
-		self.comboCategory.append_text(_("all"))
-		if ((rows is not None)and(len(rows)>0)):
-			for row in rows:
-				if (row[0] != _("all")):
-					self.comboCategory.append_text(row[0])
+		self._update_categories()
 
 		s = self.db.ladeDirekt("comboCategoryText"+self.comboList.get_child().get_text())
 		if len(s)>0:
-			self.comboCategory.get_child().set_text(s)
+			self.__categoryButton.set_label(s)
 		else:
-			self.comboCategory.set_active(0)
+			self.__categoryButton.set_label(self.__categories[0])
 
 		self.emit("changed", "list", "")
 		self.db.speichereDirekt("comboListText", self.comboList.get_child().get_text())
 
-	@gtk_toolbox.log_exception(_moduleLogger)
-	def comboCategory_changed(self, widget = None, data = None):
-		#_moduleLogger.info("Klasse geaendert zu ")
-		#self.hauptRegister.set_current_page(0)
-		self.emit("changed", "category", "")
-		if self.comboCategory.get_active()>-1:
-			self.db.speichereDirekt("comboCategoryText"+self.comboList.get_child().get_text(), self.comboCategory.get_child().get_text())
+	def _update_categories(self):
+		del self.__categories[:]
+
+		sql = "SELECT DISTINCT category FROM items WHERE list = ? ORDER BY category"
+		rows = self.db.ladeSQL(sql, (self.get_list(), ))
+
+		self.__categories.append(_("all"))
+		if ((rows is not None)and(len(rows)>0)):
+			for row in rows:
+				if (row[0] != _("all")):
+					self.__categories.append(row[0])
 
 	def comboLists_check_for_update(self):
-		if self.comboCategory.get_active() == -1:
-			model = self.comboCategory.get_model()
-			found = False
-			cat = self.get_category()
-			for x in model:
-				if x[0] == cat:
-					found = True
-			if found == False:
-				self.comboCategory.append_text(self.get_category())
-				self.comboCategory.set_active(len(self.comboCategory.get_model())-1)
 		if self.comboList.get_active() == -1:
 			model = self.comboList.get_model()
 			found = False
@@ -153,7 +150,7 @@ class Selection(gtk.HBox):
 		return self.isHildon
 
 	def get_category(self, select = False):
-		s = self.comboCategory.get_child().get_text()
+		s = self.__categoryButton.get_label()
 		if s == _("all"):
 			if not select:
 				return "undefined"
@@ -163,7 +160,7 @@ class Selection(gtk.HBox):
 			return s
 
 	def set_category(self, category):
-		self.comboCategory.get_child().set_text(category)
+		self.__categoryButton.set_label(category)
 
 	def set_list(self, listname):
 		self.comboList.get_child().set_text(listname)
