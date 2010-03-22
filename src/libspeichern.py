@@ -46,6 +46,47 @@ class Speichern(object):
 		self.d = shelve.open(filename)
 		self.openDB()
 
+	def openDB(self):
+		try:
+			self.cur.close()
+		except:
+			pass
+		try:
+			self.conn.close()
+		except:
+			pass
+
+		db = self.ladeDirekt("datenbank")
+		if db == "":
+			home_dir = os.path.expanduser('~')
+			db = os.path.join(home_dir, "multilist.s3db")
+
+		datum = time.strftime("%Y-%m-%d--", (time.localtime(time.time())))+str(int(time.time()))+"--"
+		if (os.path.exists(db))and(os.path.exists(os.path.dirname(db)+os.sep+"backup/")):
+			try:
+				shutil.copyfile(db, str(os.path.dirname(db))+os.sep+"backup"+os.sep+datum+os.path.basename(db))
+				#_moduleLogger.debug(str(os.path.dirname(db))+os.sep+"backup"+os.sep+datum+os.path.basename(db))
+			except:
+				_moduleLogger.info("Achtung Backup-Datei NICHT (!!!) angelegt!")
+				#print db, str(os.path.dirname(db))+os.sep+"backup"+os.sep+datum+os.path.basename(db)
+
+		self.conn = sqlite3.connect(db)
+		self.cur = self.conn.cursor()
+		try:
+			sql = "CREATE TABLE logtable (id INTEGER PRIMARY KEY AUTOINCREMENT, pcdatum INTEGER , sql TEXT, param TEXT, host TEXT, rowid TEXT)"
+			self.cur.execute(sql)
+			self.conn.commit()
+		except:
+			pass
+
+		#Add rowid line (not in old versions included)
+		try:
+			sql = "ALTER TABLE logtable ADD rowid TEXT"
+			self.cur.execute(sql)
+			self.conn.commit()
+		except:
+			pass
+
 	def close(self):
 		try:
 			self.d.close()
@@ -69,10 +110,8 @@ class Speichern(object):
 		_moduleLogger.info("speichereDirekt "+str(schluessel)+" "+str(daten)+" lesen: "+str(self.d[schluessel]))
 
 	def ladeDirekt(self, schluessel, default = ""):
-		#print "ladeDirekt", schluessel, "Schluessel vorhanden", self.d.has_key(schluessel)
-		if (self.d.has_key(schluessel) == True):
+		if self.d.has_key(schluessel):
 			data = self.d[schluessel]
-			#print data
 			return data
 		else:
 			return default
@@ -145,44 +184,3 @@ class Speichern(object):
 		pcdatum = int(time.time())-exceptTheLastXSeconds
 		sql = "DELETE FROM logtable WHERE rowid = ? AND pcdatum<? AND sql LIKE '%"+str(sql_condition)+"%'"
 		self.speichereSQL(sql, (rowid, pcdatum, ))
-
-	def openDB(self):
-		try:
-			self.cur.close()
-		except:
-			pass
-		try:
-			self.conn.close()
-		except:
-			pass
-
-		db = self.ladeDirekt("datenbank")
-		if db == "":
-			home_dir = os.path.expanduser('~')
-			db = os.path.join(home_dir, "multilist.s3db")
-
-		datum = time.strftime("%Y-%m-%d--", (time.localtime(time.time())))+str(int(time.time()))+"--"
-		if (os.path.exists(db))and(os.path.exists(os.path.dirname(db)+os.sep+"backup/")):
-			try:
-				shutil.copyfile(db, str(os.path.dirname(db))+os.sep+"backup"+os.sep+datum+os.path.basename(db))
-				#_moduleLogger.debug(str(os.path.dirname(db))+os.sep+"backup"+os.sep+datum+os.path.basename(db))
-			except:
-				_moduleLogger.info("Achtung Backup-Datei NICHT (!!!) angelegt!")
-				#print db, str(os.path.dirname(db))+os.sep+"backup"+os.sep+datum+os.path.basename(db)
-
-		self.conn = sqlite3.connect(db)
-		self.cur = self.conn.cursor()
-		try:
-			sql = "CREATE TABLE logtable (id INTEGER PRIMARY KEY AUTOINCREMENT, pcdatum INTEGER , sql TEXT, param TEXT, host TEXT, rowid TEXT)"
-			self.cur.execute(sql)
-			self.conn.commit()
-		except:
-			pass
-
-		#Add rowid line (not in old versions included)
-		try:
-			sql = "ALTER TABLE logtable ADD rowid TEXT"
-			self.cur.execute(sql)
-			self.conn.commit()
-		except:
-			pass
