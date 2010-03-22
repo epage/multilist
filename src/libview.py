@@ -38,58 +38,6 @@ except NameError:
 _moduleLogger = logging.getLogger(__name__)
 
 
-class Columns_dialog(gtk.VBox):
-
-	def __init__(self, db, liststorehandler):
-		gtk.VBox.__init__(self, homogeneous = False, spacing = 0)
-
-		self.db = db
-		self.liststorehandler = liststorehandler
-
-		#serverbutton = gtk.ToggleButton("SyncServer starten")
-		#serverbutton.connect("clicked", self.startServer, (None, ))
-		#self.pack_start(serverbutton, expand = False, fill = True, padding = 1)
-		#print "x1"
-
-		frame = gtk.Frame(_("Columns"))
-		self.framebox = gtk.VBox(homogeneous = False, spacing = 0)
-
-		self.scrolled_window = gtk.ScrolledWindow()
-		self.scrolled_window.set_policy(gtk.POLICY_AUTOMATIC, gtk.POLICY_AUTOMATIC)
-
-		self.scrolled_window.add_with_viewport(self.framebox)
-
-		i = 1 #uid can not be shown
-		while self.liststorehandler.get_colname(i) is not None:
-			name = str(self.liststorehandler.get_colname(i))
-			checkbutton = gtk.CheckButton(name)
-			if self.db.ladeDirekt("showcol_"+name) == "1":
-				checkbutton.set_active(True)
-
-			self.framebox.pack_start(checkbutton)
-			i = i+1
-
-		frame.add(self.scrolled_window)
-		self.pack_start(frame, expand = True, fill = True, padding = 1)
-
-	def is_col_selected(self, icol):
-		children = self.framebox.get_children()
-		if icol < len(children):
-			return children[icol].get_active()
-		else:
-			return None
-
-	def save_column_setting(self):
-		i = 1 #uid can not be shown
-		while self.liststorehandler.get_colname(i) is not None:
-			name = str(self.liststorehandler.get_colname(i))
-			if self.is_col_selected(i-1) == True:
-				self.db.speichereDirekt("showcol_"+name, "1")
-			else:
-				self.db.speichereDirekt("showcol_"+name, "0")
-			i += 1
-
-
 class CellRendererTriple(gtk.GenericCellRenderer):
 	__gproperties__ = {
 		"status": (gobject.TYPE_STRING, "Status",
@@ -439,23 +387,23 @@ class View(gtk.VBox):
 		m = self.liststorehandler.get_unitsstore()
 
 		for i in range(self.liststorehandler.get_colcount()):
-			if 5 < i:
-				default = "0"
-			else:
+			if i in [1, 2]:
 				default = "1"
+			else:
+				default = "0"
 			if self.db.ladeDirekt("showcol_"+str(self.liststorehandler.get_colname(i)), default) == "1":
-				if (i == 1):
+				if i in [1]:
 					self.cell[i] = CellRendererTriple()
-					self.tvcolumn[i] = 	gtk.TreeViewColumn("", self.cell[i])
+					self.tvcolumn[i] = gtk.TreeViewColumn("", self.cell[i])
 					self.cell[i].connect( 'status_changed', self.col_toggled)
 					self.tvcolumn[i].set_attributes( self.cell[i], status = i)
-				elif (i == 3)or(i == 4)or(i == 6):
+				elif i in [3, 6]:
 					self.cell[i] = gtk.CellRendererCombo()
-					self.tvcolumn[i] = 	gtk.TreeViewColumn(self.liststorehandler.get_colname(i), self.cell[i])
+					self.tvcolumn[i] = gtk.TreeViewColumn(self.liststorehandler.get_colname(i), self.cell[i])
 					self.cell[i].set_property("model", m)
 					self.cell[i].set_property('text-column', i)
 					self.cell[i].set_property('editable', True)
-					self.cell[i].connect("edited", self.col_edited, i) 
+					self.cell[i].connect("edited", self.col_edited, i)
 					self.tvcolumn[i].set_attributes( self.cell[i], text = i)
 				else:
 					self.cell[i] = gtk.CellRendererText()
@@ -469,11 +417,9 @@ class View(gtk.VBox):
 				self.cell[i].set_property('cell-background', 'lightgray')
 				self.tvcolumn[i].set_sort_column_id(i)
 				self.tvcolumn[i].set_resizable(True)
+				self.treeview.append_column(self.tvcolumn[i])
 
-				if (i>0):
-					self.treeview.append_column(self.tvcolumn[i])
-
-		# Allow NOT drag and drop reordering of rows
+		# Disable drag and drop reordering of rows
 		self.treeview.set_reorderable(False)
 
 		if self.scrolled_window is not None:

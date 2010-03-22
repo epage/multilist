@@ -43,6 +43,7 @@ import gtk_toolbox
 import libspeichern
 import search
 import sqldialog
+import settings
 import libselection
 import libview
 import libliststorehandler
@@ -120,12 +121,16 @@ class Multilist(hildonize.get_app_class()):
 			categorymenu = gtk.Menu()
 
 			menu_items = gtk.MenuItem(_("Search"))
-			categorymenu.append(menu_items)
 			menu_items.connect("activate", self._on_toggle_search)
+			categorymenu.append(menu_items)
 
 			menu_items = gtk.MenuItem(_("Checkout All"))
-			categorymenu.append(menu_items)
 			menu_items.connect("activate", self._on_checkout_all)
+			categorymenu.append(menu_items)
+
+			menu_items = gtk.MenuItem(_("Rename Category"))
+			menu_items.connect("activate", self.bottombar.rename_category, None)
+			categorymenu.append(menu_items)
 
 			category_menu = gtk.MenuItem(_("Category"))
 			category_menu.show()
@@ -137,19 +142,15 @@ class Multilist(hildonize.get_app_class()):
 			menu_items.connect("activate", self._on_toggle_filter, None)
 			viewMenu.append(menu_items)
 
+			menu_items = gtk.MenuItem(_("Choose columns"))
+			menu_items.connect("activate", self.show_columns_dialog, None)
+			viewMenu.append(menu_items)
+
 			viewMenuItem = gtk.MenuItem(_("View"))
 			viewMenuItem.show()
 			viewMenuItem.set_submenu(viewMenu)
 
 			toolsMenu = gtk.Menu()
-
-			menu_items = gtk.MenuItem(_("Choose columns"))
-			menu_items.connect("activate", self.show_columns_dialog, None)
-			toolsMenu.append(menu_items)
-
-			menu_items = gtk.MenuItem(_("Rename Category"))
-			menu_items.connect("activate", self.bottombar.rename_category, None)
-			toolsMenu.append(menu_items)
 
 			menu_items = gtk.MenuItem(_("Rename List"))
 			menu_items.connect("activate", self.bottombar.rename_list, None)
@@ -352,20 +353,21 @@ class Multilist(hildonize.get_app_class()):
 
 	@gtk_toolbox.log_exception(_moduleLogger)
 	def show_columns_dialog(self, widget = None, data = None):
-		col_dialog = gtk.Dialog(_("Choose columns"), self.window, gtk.DIALOG_MODAL | gtk.DIALOG_DESTROY_WITH_PARENT, (gtk.STOCK_CANCEL, gtk.RESPONSE_REJECT, gtk.STOCK_OK, gtk.RESPONSE_ACCEPT))
+		col_dialog = gtk.Dialog(
+			_("Settings"),
+			self.window,
+			gtk.DIALOG_MODAL | gtk.DIALOG_DESTROY_WITH_PARENT,
+			(gtk.STOCK_CANCEL, gtk.RESPONSE_REJECT, gtk.STOCK_OK, gtk.RESPONSE_ACCEPT)
+		)
 
-		col_dialog.set_position(gtk.WIN_POS_CENTER)
-		cols = libview.Columns_dialog(self.db, self.liststorehandler)
-
-		col_dialog.vbox.pack_start(cols, True, True, 0)
-		col_dialog.set_size_request(500, 350)
-		col_dialog.vbox.show_all()
+		cols = settings.SettingsDialog(col_dialog.vbox, self.db, self.liststorehandler)
+		col_dialog.show_all()
 
 		resp = col_dialog.run()
 		col_dialog.hide()
 		if resp == gtk.RESPONSE_ACCEPT:
 			logging.info("changing columns")
-			cols.save_column_setting()
+			cols.save(self.db)
 			self.view.reload_view()
 			#children = self.vbox.get_children()
 			#while len(children)>1:
