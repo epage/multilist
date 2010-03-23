@@ -86,7 +86,7 @@ class Selection(gtk.HBox):
 		else:
 			self.__listButton.set_label(self.__lists[0])
 
-		self._update_categories()
+		self.update_categories()
 
 	@gtk_toolbox.log_exception(_moduleLogger)
 	def _on_category_selector(self, *args):
@@ -100,7 +100,7 @@ class Selection(gtk.HBox):
 		self.set_category(userSelection)
 		self.emit("changed", "category", "")
 		self.db.speichereDirekt("comboCategoryText"+self.__listButton.get_label(), self.__categoryButton.get_label())
-		self._update_categories()
+		self.update_categories()
 
 	@gtk_toolbox.log_exception(_moduleLogger)
 	def _on_list_selector(self, *args):
@@ -113,12 +113,12 @@ class Selection(gtk.HBox):
 		)
 		self.set_list(userSelection)
 
-		self._update_categories()
+		self.update_categories()
 
 		self.emit("changed", "list", "")
 		self.db.speichereDirekt("comboListText", self.__listButton.get_label())
 
-	def _update_categories(self):
+	def update_categories(self):
 		del self.__categories[:]
 
 		sql = "SELECT DISTINCT category FROM items WHERE list = ? ORDER BY category"

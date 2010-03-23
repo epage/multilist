@@ -171,7 +171,7 @@ class Liststorehandler(object):
 	def rename_category(self, new_name):
 		sql = "UPDATE items SET category = ? WHERE list = ? AND category = ?"
 		self.db.speichereSQL(sql, (new_name, self.selection.get_list(), self.selection.get_category()))
-		self.selection.comboList_changed()
+		self.selection.update_categories()
 		self.selection.set_category(new_name)
 
 	def rename_list(self, new_name):
