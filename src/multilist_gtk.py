@@ -142,8 +142,8 @@ class Multilist(hildonize.get_app_class()):
 			menu_items.connect("activate", self._on_toggle_filter, None)
 			viewMenu.append(menu_items)
 
-			menu_items = gtk.MenuItem(_("Choose columns"))
-			menu_items.connect("activate", self.show_columns_dialog, None)
+			menu_items = gtk.MenuItem(_("Settings"))
+			menu_items.connect("activate", self._on_settings, None)
 			viewMenu.append(menu_items)
 
 			viewMenuItem = gtk.MenuItem(_("View"))
@@ -224,6 +224,10 @@ class Multilist(hildonize.get_app_class()):
 
 			searchButton= gtk.Button(_("Search Category"))
 			searchButton.connect("clicked", self._on_toggle_search)
+			menuBar.append(searchButton)
+
+			searchButton= gtk.Button(_("Settings"))
+			searchButton.connect("clicked", self._on_settings)
 			menuBar.append(searchButton)
 
 			menuBar.show_all()
@@ -352,7 +356,7 @@ class Multilist(hildonize.get_app_class()):
 		self.sync_dialog.hide()
 
 	@gtk_toolbox.log_exception(_moduleLogger)
-	def show_columns_dialog(self, widget = None, data = None):
+	def _on_settings(self, *args):
 		col_dialog = gtk.Dialog(
 			_("Settings"),
 			self.window,
@@ -364,20 +368,14 @@ class Multilist(hildonize.get_app_class()):
 		col_dialog.show_all()
 
 		resp = col_dialog.run()
-		col_dialog.hide()
-		if resp == gtk.RESPONSE_ACCEPT:
-			logging.info("changing columns")
-			cols.save(self.db)
-			self.view.reload_view()
-			#children = self.vbox.get_children()
-			#while len(children)>1:
-			#	self.vbox.remove(children[1])
-
-			#self.vbox.pack_end(self.bottombar, expand = True, fill = True, padding = 0)
-			#self.vbox.pack_end(view, expand = True, fill = True, padding = 0)
-			#self.vbox.pack_end(self.selection, expand = False, fill = True, padding = 0)
-
-		col_dialog.destroy()
+		try:
+			col_dialog.hide()
+			if resp == gtk.RESPONSE_ACCEPT:
+				logging.info("changing columns")
+				cols.save(self.db)
+				self.view.reload_view()
+		finally:
+			col_dialog.destroy()
 
 	@gtk_toolbox.log_exception(_moduleLogger)
 	def destroy(self, widget = None, data = None):
