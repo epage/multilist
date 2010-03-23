@@ -62,13 +62,11 @@ class Speichern(object):
 			db = os.path.join(home_dir, "multilist.s3db")
 
 		datum = time.strftime("%Y-%m-%d--", (time.localtime(time.time())))+str(int(time.time()))+"--"
-		if (os.path.exists(db))and(os.path.exists(os.path.dirname(db)+os.sep+"backup/")):
+		if os.path.exists(db) and os.path.exists(os.path.dirname(db)+os.sep+"backup"):
 			try:
 				shutil.copyfile(db, str(os.path.dirname(db))+os.sep+"backup"+os.sep+datum+os.path.basename(db))
-				#_moduleLogger.debug(str(os.path.dirname(db))+os.sep+"backup"+os.sep+datum+os.path.basename(db))
 			except:
 				_moduleLogger.info("Achtung Backup-Datei NICHT (!!!) angelegt!")
-				#print db, str(os.path.dirname(db))+os.sep+"backup"+os.sep+datum+os.path.basename(db)
 
 		self.conn = sqlite3.connect(db)
 		self.cur = self.conn.cursor()
@@ -117,23 +115,21 @@ class Speichern(object):
 			return default
 
 	def speichereSQL(self, sql, tupel = None, commit = True, host = "self", log = True, pcdatum = None, rowid = ""):
-		#print "speichereSQL:", sql, tupel
 		try:
 			programSQLError = True
-			if (tupel == None):
+			if tupel is None:
 				self.cur.execute(sql)
 			else:
 				self.cur.execute(sql, tupel)
 			programSQLError = False
 
-			#print int(time.time()), sql, pickle.dumps(tupel), host
-			if (log == True):
+			if log:
 				strtupel = []
-				if (tupel is not None):
+				if tupel is not None:
 					for t in tupel:
 						strtupel.append(str(t))
 
-				if pcdatum == None:
+				if pcdatum is None:
 					pcdatum = int(time.time())
 				self.cur.execute("INSERT INTO logtable ( pcdatum, sql, param, host, rowid ) VALUES (?, ?, ?, ?, ?)", (pcdatum, sql, string.join(strtupel, " <<Tren-ner>> "), host, str(rowid) ))
 			if commit:
@@ -141,9 +137,8 @@ class Speichern(object):
 			return True
 		except:
 			s = str(sys.exc_info())
-			if (s.find(" already exists") == -1):
-			#if len(s)>0:
-				if (programSQLError == True):
+			if s.find(" already exists") == -1:
+				if programSQLError:
 					_moduleLogger.error("speichereSQL-Exception "+str(sys.exc_info())+" "+str(sql)+" "+str(tupel))
 				else:
 					_moduleLogger.error("speichereSQL-Exception in Logging!!!! :"+str(sys.exc_info())+" "+str(sql)+" "+str(tupel))
@@ -153,9 +148,8 @@ class Speichern(object):
 		self.conn.commit()
 
 	def ladeSQL(self, sql, tupel = None):
-		#print sql, tupel
 		try:
-			if (tupel == None):
+			if tupel is None:
 				self.cur.execute(sql)
 			else:
 				self.cur.execute(sql, tupel)

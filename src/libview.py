@@ -107,9 +107,6 @@ class View(gtk.VBox):
 			row_iter = self.treeview.get_model().get_iter(path)
 			self.liststorehandler.del_row(irow, row_iter)
 
-	def sort_func_function(self, model, iter1, iter2, data = None):
-		print "sorting"
-
 	def reload_view(self):
 		# create the TreeView using liststore
 		self.modelsort = gtk.TreeModelSort(self.liststorehandler.get_liststore())

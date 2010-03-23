@@ -21,7 +21,6 @@ Copyright (C) 2008 Christoph Würstle
 """
 
 
-import gobject
 import logging
 
 import gtk
@@ -64,49 +63,52 @@ class Bottombar(gtk.VBox):
 
 	@gtk_toolbox.log_exception(_moduleLogger)
 	def new_item(self, widget = None, data1 = None, data2 = None):
-		dialog = gtk.Dialog(_("New item name:"), None, gtk.DIALOG_MODAL | gtk.DIALOG_DESTROY_WITH_PARENT, (gtk.STOCK_CANCEL, gtk.RESPONSE_REJECT, gtk.STOCK_OK, gtk.RESPONSE_ACCEPT))
-		dialog.set_position(gtk.WIN_POS_CENTER)
+		dialog = gtk.Dialog(
+			_("New item name:"),
+			None,
+			gtk.DIALOG_MODAL | gtk.DIALOG_DESTROY_WITH_PARENT,
+			(gtk.STOCK_CANCEL, gtk.RESPONSE_REJECT, gtk.STOCK_OK, gtk.RESPONSE_ACCEPT)
+		)
+
 		entryKlasse = gtk.Entry()
 		entryKlasse.set_text("")
-
 		dialog.vbox.pack_start(entryKlasse, True, True, 0)
 
 		dialog.vbox.show_all()
-		#dialog.set_size_request(400, 300)
-
 		if dialog.run() == gtk.RESPONSE_ACCEPT:
-			#_moduleLogger.info("new category name "+entryKlasse.get_text())
-			#self.view.liststorehandler.rename_category(entryKlasse.get_text())
 			self.view.liststorehandler.add_row(entryKlasse.get_text())
 		dialog.destroy()
 
 	@gtk_toolbox.log_exception(_moduleLogger)
 	def del_item(self, widget = None, data1 = None, data2 = None):
 		path, col = self.view.treeview.get_cursor()
-		if path is not None:
-			mbox = gtk.MessageDialog(None, gtk.DIALOG_MODAL, gtk.MESSAGE_QUESTION, gtk.BUTTONS_YES_NO, _("Delete current item?"))
-			response = mbox.run()
-			mbox.hide()
-			mbox.destroy()
-			if response == gtk.RESPONSE_YES:
-				self.view.del_active_row()
-		else:
+		if path is None:
 			mbox = gtk.MessageDialog(None, gtk.DIALOG_MODAL, gtk.MESSAGE_ERROR, gtk.BUTTONS_OK, _("No item selected!"))
 			response = mbox.run()
 			mbox.hide()
 			mbox.destroy()
+			return
+
+		mbox = gtk.MessageDialog(None, gtk.DIALOG_MODAL, gtk.MESSAGE_QUESTION, gtk.BUTTONS_YES_NO, _("Delete current item?"))
+		response = mbox.run()
+		mbox.hide()
+		mbox.destroy()
+		if response == gtk.RESPONSE_YES:
+			self.view.del_active_row()
 
 	def rename_category(self, widget = None, data1 = None, data2 = None):
-		dialog = gtk.Dialog(_("New category name:"), None, gtk.DIALOG_MODAL | gtk.DIALOG_DESTROY_WITH_PARENT, (gtk.STOCK_CANCEL, gtk.RESPONSE_REJECT, gtk.STOCK_OK, gtk.RESPONSE_ACCEPT))
+		dialog = gtk.Dialog(
+			_("New category name:"),
+			None,
+			gtk.DIALOG_MODAL | gtk.DIALOG_DESTROY_WITH_PARENT,
+			(gtk.STOCK_CANCEL, gtk.RESPONSE_REJECT, gtk.STOCK_OK, gtk.RESPONSE_ACCEPT)
+		)
 
-		dialog.set_position(gtk.WIN_POS_CENTER)
 		entryKlasse = gtk.Entry()
 		entryKlasse.set_text(self.view.liststorehandler.selection.get_category())
-
 		dialog.vbox.pack_start(entryKlasse, True, True, 0)
 
 		dialog.vbox.show_all()
-
 		if dialog.run() == gtk.RESPONSE_ACCEPT:
 			_moduleLogger.info("new category name "+entryKlasse.get_text())
 			self.view.liststorehandler.rename_category(entryKlasse.get_text())
@@ -115,16 +117,19 @@ class Bottombar(gtk.VBox):
 		dialog.destroy()
 
 	def rename_list(self, widget = None, data1 = None, data2 = None):
-		dialog = gtk.Dialog(_("New list name:"), None, gtk.DIALOG_MODAL | gtk.DIALOG_DESTROY_WITH_PARENT, (gtk.STOCK_CANCEL, gtk.RESPONSE_REJECT, gtk.STOCK_OK, gtk.RESPONSE_ACCEPT))
+		dialog = gtk.Dialog(
+			_("New list name:"),
+			None,
+			gtk.DIALOG_MODAL | gtk.DIALOG_DESTROY_WITH_PARENT,
+			(gtk.STOCK_CANCEL, gtk.RESPONSE_REJECT, gtk.STOCK_OK, gtk.RESPONSE_ACCEPT)
+		)
 
 		dialog.set_position(gtk.WIN_POS_CENTER)
 		entryKlasse = gtk.Entry()
 		entryKlasse.set_text(self.view.liststorehandler.selection.get_list())
-
 		dialog.vbox.pack_start(entryKlasse, True, True, 0)
 
 		dialog.vbox.show_all()
-
 		if dialog.run() == gtk.RESPONSE_ACCEPT:
 			_moduleLogger.info("new list name "+entryKlasse.get_text())
 			self.view.liststorehandler.rename_list(entryKlasse.get_text())
