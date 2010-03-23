@@ -118,23 +118,27 @@ class Multilist(hildonize.get_app_class()):
 			fileMenuItem.show()
 			fileMenuItem.set_submenu(fileMenu)
 
-			categorymenu = gtk.Menu()
+			listmenu = gtk.Menu()
 
 			menu_items = gtk.MenuItem(_("Search"))
 			menu_items.connect("activate", self._on_toggle_search)
-			categorymenu.append(menu_items)
+			listmenu.append(menu_items)
 
 			menu_items = gtk.MenuItem(_("Checkout All"))
 			menu_items.connect("activate", self._on_checkout_all)
-			categorymenu.append(menu_items)
+			listmenu.append(menu_items)
+
+			menu_items = gtk.MenuItem(_("Rename List"))
+			menu_items.connect("activate", self.bottombar.rename_list, None)
+			listmenu.append(menu_items)
 
 			menu_items = gtk.MenuItem(_("Rename Category"))
 			menu_items.connect("activate", self.bottombar.rename_category, None)
-			categorymenu.append(menu_items)
+			listmenu.append(menu_items)
 
-			category_menu = gtk.MenuItem(_("Category"))
-			category_menu.show()
-			category_menu.set_submenu(categorymenu)
+			listMenuItem = gtk.MenuItem(_("List"))
+			listMenuItem.show()
+			listMenuItem.set_submenu(listmenu)
 
 			viewMenu = gtk.Menu()
 
@@ -150,16 +154,6 @@ class Multilist(hildonize.get_app_class()):
 			viewMenuItem.show()
 			viewMenuItem.set_submenu(viewMenu)
 
-			toolsMenu = gtk.Menu()
-
-			menu_items = gtk.MenuItem(_("Rename List"))
-			menu_items.connect("activate", self.bottombar.rename_list, None)
-			toolsMenu.append(menu_items)
-
-			toolsMenuItem = gtk.MenuItem(_("Tools"))
-			toolsMenuItem.show()
-			toolsMenuItem.set_submenu(toolsMenu)
-
 			helpMenu = gtk.Menu()
 			menu_items = gtk.MenuItem(_("About"))
 			helpMenu.append(menu_items)
@@ -172,8 +166,7 @@ class Multilist(hildonize.get_app_class()):
 			menu_bar = gtk.MenuBar()
 			menu_bar.show()
 			menu_bar.append (fileMenuItem)
-			menu_bar.append (toolsMenuItem)
-			menu_bar.append (category_menu)
+			menu_bar.append (listMenuItem)
 			menu_bar.append (viewMenuItem)
 			# unten -> damit als letztes menu_bar.append (helpMenuItem)
 			#Als letztes menü
@@ -214,13 +207,13 @@ class Multilist(hildonize.get_app_class()):
 			button.connect("clicked", self._on_click_menu_filter, self.liststorehandler.SHOW_ACTIVE)
 			button.set_mode(False)
 
-			renameCategoryButton = gtk.Button(_("Rename Category"))
-			renameCategoryButton.connect("clicked", self.bottombar.rename_category)
-			menuBar.append(renameCategoryButton)
-
 			renameListButton= gtk.Button(_("Rename List"))
 			renameListButton.connect("clicked", self.bottombar.rename_list)
 			menuBar.append(renameListButton)
+
+			renameCategoryButton = gtk.Button(_("Rename Category"))
+			renameCategoryButton.connect("clicked", self.bottombar.rename_category)
+			menuBar.append(renameCategoryButton)
 
 			searchButton= gtk.Button(_("Search Category"))
 			searchButton.connect("clicked", self._on_toggle_search)
