@@ -95,15 +95,15 @@ class Multilist(hildonize.get_app_class()):
 			fileMenu = gtk.Menu()
 
 			menu_items = gtk.MenuItem(_("Choose database file"))
-			menu_items.connect("activate", self.select_db_dialog, None)
+			menu_items.connect("activate", self._on_select_db, None)
 			fileMenu.append(menu_items)
 
 			menu_items = gtk.MenuItem(_("SQL history"))
-			menu_items.connect("activate", self.view_sql_history, None)
+			menu_items.connect("activate", self._on_view_sql_history, None)
 			fileMenu.append(menu_items)
 
 			menu_items = gtk.MenuItem(_("SQL optimize"))
-			menu_items.connect("activate", self.optimizeSQL, None)
+			menu_items.connect("activate", self._on_optimize_sql, None)
 			fileMenu.append(menu_items)
 
 			menu_items = gtk.MenuItem(_("Sync items"))
@@ -246,8 +246,13 @@ class Multilist(hildonize.get_app_class()):
 
 		self.window.show_all()
 		self._search.hide()
-		self.prepare_sync_dialog()
-		self.ladeAlles()
+		self._prepare_sync_dialog()
+
+	def _toggle_search(self):
+		if self._search.get_property("visible"):
+			self._search.hide()
+		else:
+			self._search.show()
 
 	@gtk_toolbox.log_exception(_moduleLogger)
 	def _on_checkout_all(self, widget):
@@ -260,12 +265,6 @@ class Multilist(hildonize.get_app_class()):
 	@gtk_toolbox.log_exception(_moduleLogger)
 	def _on_click_menu_filter(self, button, val):
 		self.liststorehandler.set_filter(val)
-
-	def _toggle_search(self):
-		if self._search.get_property("visible"):
-			self._search.hide()
-		else:
-			self._search.show()
 
 	@gtk_toolbox.log_exception(_moduleLogger)
 	def _on_toggle_search(self, *args):
@@ -316,35 +315,26 @@ class Multilist(hildonize.get_app_class()):
 		else:
 			self.window_in_fullscreen = False
 
-	def speichereAlles(self, data = None, data2 = None):
-		logging.info("Speichere alles")
-
-	def ladeAlles(self, data = None, data2 = None):
-		logging.info("Lade alles")
-
-	def beforeSync(self, data = None, data2 = None):
-		logging.info("Lade alles")
-
 	@gtk_toolbox.log_exception(_moduleLogger)
-	def sync_finished(self, data = None, data2 = None):
+	def _on_sync_finished(self, data = None, data2 = None):
 		self.selection.comboList_changed()
 		self.selection.comboCategory_changed()
 		self.liststorehandler.update_list()
 
-	def prepare_sync_dialog(self):
+	def _prepare_sync_dialog(self):
 		self.sync_dialog = gtk.Dialog(_("Sync"), None, gtk.DIALOG_MODAL | gtk.DIALOG_DESTROY_WITH_PARENT, (gtk.STOCK_OK, gtk.RESPONSE_ACCEPT))
 
 		self.sync_dialog.set_position(gtk.WIN_POS_CENTER)
 		sync = libsync.Sync(self.db, self.window, 50503)
-		sync.connect("syncFinished", self.sync_finished)
+		sync.connect("syncFinished", self._on_sync_finished)
 		self.sync_dialog.vbox.pack_start(sync, True, True, 0)
 		self.sync_dialog.set_size_request(500, 350)
 		self.sync_dialog.vbox.show_all()
 
 	@gtk_toolbox.log_exception(_moduleLogger)
 	def sync_notes(self, widget = None, data = None):
-		if self.sync_dialog == None:
-			self.prepare_sync_dialog()
+		if self.sync_dialog is None:
+			self._prepare_sync_dialog()
 		self.sync_dialog.run()
 		self.sync_dialog.hide()
 
@@ -373,7 +363,6 @@ class Multilist(hildonize.get_app_class()):
 	@gtk_toolbox.log_exception(_moduleLogger)
 	def _on_destroy(self, widget = None, data = None):
 		try:
-			self.speichereAlles()
 			self.db.close()
 			try:
 				self._osso_c.close()
@@ -384,31 +373,10 @@ class Multilist(hildonize.get_app_class()):
 
 	@gtk_toolbox.log_exception(_moduleLogger)
 	def _on_delete_event(self, widget, event, data = None):
-		#print "delete event occurred"
-		return False
-
-	def dlg_delete(self, widget, event, data = None):
 		return False
 
 	@gtk_toolbox.log_exception(_moduleLogger)
-	def _on_about(self, widget = None, data = None):
-		dialog = gtk.AboutDialog()
-		dialog.set_position(gtk.WIN_POS_CENTER)
-		dialog.set_name(constants.__pretty_app_name__)
-		dialog.set_version(constants.__version__)
-		dialog.set_copyright("")
-		dialog.set_website("http://axique.de/f = Multilist")
-		comments = "%s is a program to handle multiple lists." % constants.__pretty_app_name__
-		dialog.set_comments(comments)
-		dialog.set_authors(["Christoph Wurstle <n800@axique.net>", "Ed Page <eopage@byu.net> (Blame him for the most recent bugs)"])
-		dialog.run()
-		dialog.destroy()
-
-	def on_info1_activate(self, menuitem):
-		self._on_about(menuitem)
-
-	@gtk_toolbox.log_exception(_moduleLogger)
-	def view_sql_history(self, widget = None, data = None, data2 = None):
+	def _on_view_sql_history(self, widget = None, data = None, data2 = None):
 		sqldiag = sqldialog.SqlDialog(self.db)
 		res = sqldiag.run()
 		sqldiag.hide()
@@ -440,18 +408,13 @@ class Multilist(hildonize.get_app_class()):
 			sqldiag.destroy()
 
 	@gtk_toolbox.log_exception(_moduleLogger)
-	def optimizeSQL(self, widget = None, data = None, data2 = None):
+	def _on_optimize_sql(self, widget = None, data = None, data2 = None):
 		#optimiere sql
 		self.db.speichereSQL("VACUUM", log = False)
 
 	@gtk_toolbox.log_exception(_moduleLogger)
-	def select_db_dialog(self, widget = None, data = None, data2 = None):
-		if (isHildon == False):
-			dlg = gtk.FileChooserDialog(parent = self.window, action = gtk.FILE_CHOOSER_ACTION_SAVE)
-			dlg.add_button( gtk.STOCK_CANCEL, gtk.RESPONSE_CANCEL)
-			dlg.add_button( gtk.STOCK_OK, gtk.RESPONSE_OK)
-		else:
-			dlg = hildon.FileChooserDialog(self.window, gtk.FILE_CHOOSER_ACTION_SAVE)
+	def _on_select_db(self, widget = None, data = None, data2 = None):
+		dlg = hildon.FileChooserDialog(parent=self._window, action=gtk.FILE_CHOOSER_ACTION_SAVE)
 
 		if self.db.ladeDirekt('datenbank'):
 			dlg.set_filename(self.db.ladeDirekt('datenbank'))
@@ -461,11 +424,23 @@ class Multilist(hildonize.get_app_class()):
 			if resp == gtk.RESPONSE_OK:
 				fileName = dlg.get_filename()
 				self.db.speichereDirekt('datenbank', fileName)
-				self.speichereAlles()
 				self.db.openDB()
-				self.ladeAlles()
 		finally:
 			dlg.destroy()
+
+	@gtk_toolbox.log_exception(_moduleLogger)
+	def _on_about(self, widget = None, data = None):
+		dialog = gtk.AboutDialog()
+		dialog.set_position(gtk.WIN_POS_CENTER)
+		dialog.set_name(constants.__pretty_app_name__)
+		dialog.set_version(constants.__version__)
+		dialog.set_copyright("")
+		dialog.set_website("http://axique.de/f = Multilist")
+		comments = "%s is a program to handle multiple lists." % constants.__pretty_app_name__
+		dialog.set_comments(comments)
+		dialog.set_authors(["Christoph Wurstle <n800@axique.net>", "Ed Page <eopage@byu.net> (Blame him for the most recent bugs)"])
+		dialog.run()
+		dialog.destroy()
 
 
 def run_multilist():
