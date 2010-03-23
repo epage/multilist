@@ -111,7 +111,7 @@ class Multilist(hildonize.get_app_class()):
 			fileMenu.append(menu_items)
 
 			menu_items = gtk.MenuItem(_("Quit"))
-			menu_items.connect("activate", self.destroy, None)
+			menu_items.connect("activate", self._on_destroy, None)
 			fileMenu.append(menu_items)
 
 			fileMenuItem = gtk.MenuItem(_("File"))
@@ -163,7 +163,7 @@ class Multilist(hildonize.get_app_class()):
 			helpMenu = gtk.Menu()
 			menu_items = gtk.MenuItem(_("About"))
 			helpMenu.append(menu_items)
-			menu_items.connect("activate", self.show_about, None)
+			menu_items.connect("activate", self._on_about, None)
 
 			helpMenuItem = gtk.MenuItem(_("Help"))
 			helpMenuItem.show()
@@ -245,10 +245,10 @@ class Multilist(hildonize.get_app_class()):
 			_moduleLogger.info("No osso support")
 			self._osso_c = None
 
-		self.window.connect("delete_event", self.delete_event)
-		self.window.connect("destroy", self.destroy)
+		self.window.connect("delete_event", self._on_delete_event)
+		self.window.connect("destroy", self._on_destroy)
 		self.window.connect("key-press-event", self.on_key_press)
-		self.window.connect("window-state-event", self.on_window_state_change)
+		self.window.connect("window-state-event", self._on_window_state_change)
 		self._search.connect("search_changed", self._on_search)
 
 		self.window.show_all()
@@ -317,7 +317,7 @@ class Multilist(hildonize.get_app_class()):
 			return True
 
 	@gtk_toolbox.log_exception(_moduleLogger)
-	def on_window_state_change(self, widget, event, *args):
+	def _on_window_state_change(self, widget, event, *args):
 		if event.new_window_state & gtk.gdk.WINDOW_STATE_FULLSCREEN:
 			self.window_in_fullscreen = True
 		else:
@@ -378,7 +378,7 @@ class Multilist(hildonize.get_app_class()):
 			col_dialog.destroy()
 
 	@gtk_toolbox.log_exception(_moduleLogger)
-	def destroy(self, widget = None, data = None):
+	def _on_destroy(self, widget = None, data = None):
 		try:
 			self.speichereAlles()
 			self.db.close()
@@ -390,7 +390,7 @@ class Multilist(hildonize.get_app_class()):
 			gtk.main_quit()
 
 	@gtk_toolbox.log_exception(_moduleLogger)
-	def delete_event(self, widget, event, data = None):
+	def _on_delete_event(self, widget, event, data = None):
 		#print "delete event occurred"
 		return False
 
@@ -398,7 +398,7 @@ class Multilist(hildonize.get_app_class()):
 		return False
 
 	@gtk_toolbox.log_exception(_moduleLogger)
-	def show_about(self, widget = None, data = None):
+	def _on_about(self, widget = None, data = None):
 		dialog = gtk.AboutDialog()
 		dialog.set_position(gtk.WIN_POS_CENTER)
 		dialog.set_name(constants.__pretty_app_name__)
@@ -412,7 +412,7 @@ class Multilist(hildonize.get_app_class()):
 		dialog.destroy()
 
 	def on_info1_activate(self, menuitem):
-		self.show_about(menuitem)
+		self._on_about(menuitem)
 
 	@gtk_toolbox.log_exception(_moduleLogger)
 	def view_sql_history(self, widget = None, data = None, data2 = None):
@@ -458,19 +458,21 @@ class Multilist(hildonize.get_app_class()):
 			dlg.add_button( gtk.STOCK_CANCEL, gtk.RESPONSE_CANCEL)
 			dlg.add_button( gtk.STOCK_OK, gtk.RESPONSE_OK)
 		else:
-			#dlg = hildon.FileChooserDialog(parent = self.window, action = gtk.FILE_CHOOSER_ACTION_SAVE)
 			dlg = hildon.FileChooserDialog(self.window, gtk.FILE_CHOOSER_ACTION_SAVE)
 
 		if self.db.ladeDirekt('datenbank'):
 			dlg.set_filename(self.db.ladeDirekt('datenbank'))
 		dlg.set_title(_("Choose your database file"))
-		if dlg.run() == gtk.RESPONSE_OK:
-			fileName = dlg.get_filename()
-			self.db.speichereDirekt('datenbank', fileName)
-			self.speichereAlles()
-			self.db.openDB()
-			self.ladeAlles()
-		dlg.destroy()
+		resp = dlg.run()
+		try:
+			if resp == gtk.RESPONSE_OK:
+				fileName = dlg.get_filename()
+				self.db.speichereDirekt('datenbank', fileName)
+				self.speichereAlles()
+				self.db.openDB()
+				self.ladeAlles()
+		finally:
+			dlg.destroy()
 
 
 def run_multilist():
