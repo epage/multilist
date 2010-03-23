@@ -77,7 +77,7 @@ class Selection(gtk.HBox):
 		if rows is not None:
 			for row in rows:
 				self.__lists.append(row[0])
-		else:
+		if not self.__lists:
 			self.__lists.append("default")
 
 		s = self.db.ladeDirekt("comboListText")

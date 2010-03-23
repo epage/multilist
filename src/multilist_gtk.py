@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+from __future__ import with_statement
+
 """
 This file is part of Multilist.
 
@@ -163,16 +165,16 @@ class Multilist(hildonize.get_app_class()):
 			helpMenuItem.show()
 			helpMenuItem.set_submenu(helpMenu)
 
-			menu_bar = gtk.MenuBar()
-			menu_bar.show()
-			menu_bar.append (fileMenuItem)
-			menu_bar.append (listMenuItem)
-			menu_bar.append (viewMenuItem)
-			# unten -> damit als letztes menu_bar.append (helpMenuItem)
+			menuBar = gtk.MenuBar()
+			menuBar.show()
+			menuBar.append (fileMenuItem)
+			menuBar.append (listMenuItem)
+			menuBar.append (viewMenuItem)
+			# unten -> damit als letztes menuBar.append (helpMenuItem)
 			#Als letztes menü
-			menu_bar.append (helpMenuItem)
+			menuBar.append (helpMenuItem)
 
-			self.vbox.pack_start(menu_bar, False, False, 0)
+			self.vbox.pack_start(menuBar, False, False, 0)
 		else:
 			menuBar = gtk.MenuBar()
 			menuBar.show()
@@ -189,9 +191,9 @@ class Multilist(hildonize.get_app_class()):
 
 		self.window = hildonize.hildonize_window(self, self.window)
 		hildonize.set_application_title(self.window, "%s" % constants.__pretty_app_name__)
-		menu_bar = hildonize.hildonize_menu(
+		menuBar = hildonize.hildonize_menu(
 			self.window,
-			menu_bar,
+			menuBar,
 		)
 		if hildonize.IS_FREMANTLE_SUPPORTED:
 			button = hildonize.hildon.GtkRadioButton(gtk.HILDON_SIZE_AUTO, None)
