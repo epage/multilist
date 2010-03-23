@@ -24,7 +24,6 @@ import logging
 
 import gtk
 import gobject
-import pango
 
 import gtk_toolbox
 
@@ -55,6 +54,7 @@ class TripleToggleCellRenderer(gtk.CellRendererToggle):
 		self.connect('toggled', self._on_toggled)
 		self.status = -1
 
+	@gtk_toolbox.log_exception(_moduleLogger)
 	def do_set_property(self, property, value):
 		if getattr(self, property.name) == value:
 			return
@@ -70,9 +70,11 @@ class TripleToggleCellRenderer(gtk.CellRendererToggle):
 			self.set_property("active", active)
 			self.set_property("inconsistent", inconsistent)
 
+	@gtk_toolbox.log_exception(_moduleLogger)
 	def do_get_property(self, property):
 		return getattr(self, property.name)
 
+	@gtk_toolbox.log_exception(_moduleLogger)
 	def _on_toggled(self, widget, path):
 		self.emit("status_changed", int(path), "-1")
 
@@ -97,34 +99,6 @@ class View(gtk.VBox):
 	def loadList(self):
 		ls = self.liststorehandler.get_liststore()
 		self.treeview.set_model(ls)
-
-	def col_edited(self, cell, irow, new_text, icol = None):
-		if (irow != 4):
-			self.liststorehandler.update_row(irow, icol, new_text)
-		else:
-			print cell, irow, new_text, icol
-
-	def col_toggled(self, widget, irow, status ):
-		ls = self.treeview.get_model()
-
-		if self.liststorehandler.get_filter() == self.liststorehandler.SHOW_ACTIVE:
-			if ls[irow][1] == "0":
-				self.liststorehandler.update_row(irow, 1, "1")
-			else:
-				self.liststorehandler.update_row(irow, 1, "0")
-		else:
-			if ls[irow][1] == "1":
-				self.liststorehandler.update_row(irow, 1, "-1")
-			elif ls[irow][1] == "0":
-				self.liststorehandler.update_row(irow, 1, "1")
-			else:
-				self.liststorehandler.update_row(irow, 1, "0")
-
-	def convert(self, s):
-		if s == "1":
-			return 1
-		else:
-			return 0
 
 	def del_active_row(self):
 		path, col = self.treeview.get_cursor()
@@ -157,10 +131,9 @@ class View(gtk.VBox):
 				default = "0"
 			if self.db.ladeDirekt("showcol_"+str(self.liststorehandler.get_colname(i)), default) == "1":
 				if i in [1]:
-					#self.cell[i] = CellRendererTriple()
 					self.cell[i] = TripleToggleCellRenderer()
 					self.tvcolumn[i] = gtk.TreeViewColumn("", self.cell[i])
-					self.cell[i].connect( 'status_changed', self.col_toggled)
+					self.cell[i].connect( 'status_changed', self._on_col_toggled)
 					self.tvcolumn[i].set_attributes( self.cell[i], status = i)
 				elif i in [3, 6]:
 					self.cell[i] = gtk.CellRendererCombo()
@@ -168,15 +141,14 @@ class View(gtk.VBox):
 					self.cell[i].set_property("model", m)
 					self.cell[i].set_property('text-column', i)
 					self.cell[i].set_property('editable', True)
-					self.cell[i].connect("edited", self.col_edited, i)
+					self.cell[i].connect("edited", self._on_col_edited, i)
 					self.tvcolumn[i].set_attributes( self.cell[i], text = i)
 				else:
 					self.cell[i] = gtk.CellRendererText()
 					self.tvcolumn[i] = gtk.TreeViewColumn(self.liststorehandler.get_colname(i), self.cell[i])
 					self.cell[i].set_property('editable', True)
 					self.cell[i].set_property('editable-set', True)
-					self.cell[i].connect("edited", self.col_edited, i)
-					#self.cell[i].connect("editing-canceled", self.col_edited2, i) 
+					self.cell[i].connect("edited", self._on_col_edited, i)
 					self.tvcolumn[i].set_attributes(self.cell[i], text = i)
 
 				self.cell[i].set_property('cell-background', 'lightgray')
@@ -195,3 +167,27 @@ class View(gtk.VBox):
 		self.loadList()
 
 		self.show_all()
+
+	@gtk_toolbox.log_exception(_moduleLogger)
+	def _on_col_edited(self, cell, irow, new_text, icol = None):
+		if (irow != 4):
+			self.liststorehandler.update_row(irow, icol, new_text)
+		else:
+			print cell, irow, new_text, icol
+
+	@gtk_toolbox.log_exception(_moduleLogger)
+	def _on_col_toggled(self, widget, irow, status):
+		ls = self.treeview.get_model()
+
+		if self.liststorehandler.get_filter() == self.liststorehandler.SHOW_ACTIVE:
+			if ls[irow][1] == "0":
+				self.liststorehandler.update_row(irow, 1, "1")
+			else:
+				self.liststorehandler.update_row(irow, 1, "0")
+		else:
+			if ls[irow][1] == "1":
+				self.liststorehandler.update_row(irow, 1, "-1")
+			elif ls[irow][1] == "0":
+				self.liststorehandler.update_row(irow, 1, "1")
+			else:
+				self.liststorehandler.update_row(irow, 1, "0")
