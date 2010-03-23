@@ -22,11 +22,15 @@ __version__ = constants.__version__
 __build__ = constants.__build__
 __changelog__ = """
 0.3.2
-* Cleaned up some code
+* Massive code cleanup
+* Re-arrangement of GTK Menus
+* Added Maemo 5 Menu
 * Moved Active/All filter to menu
-* Switched to search bar
 * Moved Checkout All to menu
-* Fremantlized the menu
+* Improved Search bar
+* Removed unnesary UI elements
+* Switched to real inconsistent check boxes for tasks
+* Switching the settings dialog to be more Maemo 5 like
 
 0.3.1
 * I18N, extract de.po, add ru.po.
