@@ -21,6 +21,9 @@ __email__ = "n800@axique.net"
 __version__ = constants.__version__
 __build__ = constants.__build__
 __changelog__ = """
+0.3.5
+* Bugfix: Fixing the application launcher
+
 0.3.4
 * Making rotation configurable in the Settings window
 * Persisting full-screen / rotation settings
