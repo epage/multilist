@@ -61,6 +61,14 @@ class Bottombar(gtk.VBox):
 		button.connect("clicked", self.del_item, None)
 		buttonHBox.pack_start(button, expand = True, fill = True, padding = 3)
 
+	def set_orientation(self, orientation):
+		if orientation == gtk.ORIENTATION_HORIZONTAL:
+			pass
+		elif orientation == gtk.ORIENTATION_VERTICAL:
+			pass
+		else:
+			raise NotImplementedError(orientation)
+
 	@gtk_toolbox.log_exception(_moduleLogger)
 	def new_item(self, widget = None, data1 = None, data2 = None):
 		window = gtk_toolbox.find_parent_window(self)

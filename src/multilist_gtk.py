@@ -81,6 +81,7 @@ class Multilist(hildonize.get_app_class()):
 
 		self.db = libspeichern.Speichern()
 		self.window_in_fullscreen = False #The window isn't in full screen mode initially.
+		self.__isLandscape = True
 
 		#Haupt vbox für alle Elemente
 		self.window = gtk.Window()
@@ -256,6 +257,29 @@ class Multilist(hildonize.get_app_class()):
 		else:
 			self._search.show()
 
+	def set_orientation(self, orientation):
+		if orientation == gtk.ORIENTATION_VERTICAL:
+			hildonize.window_to_portrait(self.window)
+			self.bottombar.set_orientation(gtk.ORIENTATION_VERTICAL)
+			self.selection.set_orientation(gtk.ORIENTATION_VERTICAL)
+			self.__isLandscape = False
+		elif orientation == gtk.ORIENTATION_HORIZONTAL:
+			hildonize.window_to_landscape(self.window)
+			self.bottombar.set_orientation(gtk.ORIENTATION_HORIZONTAL)
+			self.selection.set_orientation(gtk.ORIENTATION_HORIZONTAL)
+			self.__isLandscape = True
+		else:
+			raise NotImplementedError(orientation)
+
+	def get_orientation(self):
+		return gtk.ORIENTATION_HORIZONTAL if self.__isLandscape else gtk.ORIENTATION_VERTICAL
+
+	def _toggle_rotate(self):
+		if self.__isLandscape:
+			self.set_orientation(gtk.ORIENTATION_VERTICAL)
+		else:
+			self.set_orientation(gtk.ORIENTATION_HORIZONTAL)
+
 	@gtk_toolbox.log_exception(_moduleLogger)
 	def _on_checkout_all(self, widget):
 		self.liststorehandler.checkout_rows()
@@ -294,6 +318,9 @@ class Multilist(hildonize.get_app_class()):
 				self.window.unfullscreen ()
 			else:
 				self.window.fullscreen ()
+			return True
+		elif event.keyval == gtk.keysyms.r and isCtrl:
+			self._toggle_rotate()
 			return True
 		elif event.keyval == gtk.keysyms.f and isCtrl:
 			self._toggle_search()

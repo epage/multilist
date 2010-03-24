@@ -21,6 +21,9 @@ __email__ = "n800@axique.net"
 __version__ = constants.__version__
 __build__ = constants.__build__
 __changelog__ = """
+0.3.3
+* Rotation support
+
 0.3.2
 * Massive code cleanup
 * Re-arrangement of GTK Menus

@@ -56,7 +56,7 @@ class TripleToggleCellRenderer(gtk.CellRendererToggle):
 
 	@gtk_toolbox.log_exception(_moduleLogger)
 	def do_set_property(self, property, value):
-		if getattr(self, property.name) == value:
+		if getattr(self, property.name) == value or value is None:
 			return
 
 		setattr(self, property.name, value)

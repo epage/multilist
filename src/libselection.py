@@ -53,21 +53,31 @@ class Selection(gtk.HBox):
 
 		_moduleLogger.info("libSelection, init")
 
-		label = gtk.Label(_("List:"))
-		self.pack_start(label, expand = False, fill = True, padding = 0)
+		self.__listLabel = gtk.Label(_("List:"))
+		self.pack_start(self.__listLabel, expand = False, fill = True, padding = 0)
 
 		self.__lists = []
 		self.__listButton = gtk.Button("")
 		self.__listButton.connect("clicked", self._on_list_selector)
 		self.pack_start(self.__listButton, expand = True, fill = True, padding = 0)
 
-		label = gtk.Label(_("  Category:"))
-		self.pack_start(label, expand = False, fill = True, padding = 0)
+		self.__catLabel = gtk.Label(_("  Category:"))
+		self.pack_start(self.__catLabel, expand = False, fill = True, padding = 0)
 
 		self.__categories = []
 		self.__categoryButton = gtk.Button("")
 		self.__categoryButton.connect("clicked", self._on_category_selector)
 		self.pack_start(self.__categoryButton, expand = True, fill = True, padding = 0)
+
+	def set_orientation(self, orientation):
+		if orientation == gtk.ORIENTATION_HORIZONTAL:
+			self.__listLabel.show()
+			self.__catLabel.show()
+		elif orientation == gtk.ORIENTATION_VERTICAL:
+			self.__listLabel.hide()
+			self.__catLabel.hide()
+		else:
+			raise NotImplementedError(orientation)
 
 	def load(self):
 		del self.__lists[:]
