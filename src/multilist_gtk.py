@@ -85,6 +85,8 @@ class Multilist(hildonize.get_app_class()):
 
 		#Haupt vbox für alle Elemente
 		self.window = gtk.Window()
+		self.__settingsWindow = None
+		self.__settingsManager = None
 		self.vbox = gtk.VBox(homogeneous = False, spacing = 0)
 
 		self.selection = libselection.Selection(self.db, isHildon)
@@ -263,7 +265,7 @@ class Multilist(hildonize.get_app_class()):
 			self.bottombar.set_orientation(gtk.ORIENTATION_VERTICAL)
 			self.selection.set_orientation(gtk.ORIENTATION_VERTICAL)
 			self.__isLandscape = False
-		elif orientation == gtk.ORIENTATION_HORIZONTAL:
+		elif orientation == gtk.ORIENTATION_HORIZONTALt :
 			hildonize.window_to_landscape(self.window)
 			self.bottombar.set_orientation(gtk.ORIENTATION_HORIZONTAL)
 			self.selection.set_orientation(gtk.ORIENTATION_HORIZONTAL)
@@ -369,25 +371,32 @@ class Multilist(hildonize.get_app_class()):
 
 	@gtk_toolbox.log_exception(_moduleLogger)
 	def _on_settings(self, *args):
-		col_dialog = gtk.Dialog(
-			_("Settings"),
-			self.window,
-			gtk.DIALOG_MODAL | gtk.DIALOG_DESTROY_WITH_PARENT,
-			(gtk.STOCK_CANCEL, gtk.RESPONSE_REJECT, gtk.STOCK_OK, gtk.RESPONSE_ACCEPT)
-		)
+		if self.__settingsWindow is None:
+			vbox = gtk.VBox()
+			self.__settingsManager = settings.SettingsDialog(vbox, self.db, self.liststorehandler)
 
-		cols = settings.SettingsDialog(col_dialog.vbox, self.db, self.liststorehandler)
-		col_dialog.show_all()
+			self.__settingsWindow = gtk.Window()
+			self.__settingsWindow.add(vbox)
+			self.__settingsWindow = hildonize.hildonize_window(self, self.__settingsWindow)
 
-		resp = col_dialog.run()
-		try:
-			col_dialog.hide()
-			if resp == gtk.RESPONSE_ACCEPT:
-				logging.info("changing columns")
-				cols.save(self.db)
-				self.view.reload_view()
-		finally:
-			col_dialog.destroy()
+			self.__settingsWindow.set_title(_("Settings"))
+			self.__settingsWindow.set_transient_for(self.window)
+			self.__settingsWindow.set_default_size(*self.window.get_size())
+			self.__settingsWindow.connect("delete-event", self._on_settings_delete)
+		self.__settingsWindow.set_modal(True)
+		self.__settingsWindow.show_all()
+
+	@gtk_toolbox.log_exception(_moduleLogger)
+	def _on_settings_delete(self, *args):
+		self.__settingsWindow.emit_stop_by_name("delete-event")
+		self.__settingsWindow.hide()
+		self.__settingsWindow.set_modal(False)
+
+		logging.info("changing columns")
+		self.__settingsManager.save(self.db)
+		self.view.reload_view()
+
+		return True
 
 	@gtk_toolbox.log_exception(_moduleLogger)
 	def _on_destroy(self, widget = None, data = None):
