@@ -23,6 +23,7 @@ __build__ = constants.__build__
 __changelog__ = """
 0.3.3
 * Rotation support
+* Turned the settings dialog into a window
 
 0.3.2
 * Massive code cleanup
