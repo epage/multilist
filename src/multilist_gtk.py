@@ -24,6 +24,7 @@ Copyright (C) 2008 Christoph Würstle
 
 import os
 import logging
+import ConfigParser
 
 import gtk
 
@@ -80,8 +81,8 @@ class Multilist(hildonize.get_app_class()):
 				raise
 
 		self.db = libspeichern.Speichern()
-		self.window_in_fullscreen = False #The window isn't in full screen mode initially.
-		self.__isLandscape = True
+		self.__window_in_fullscreen = False #The window isn't in full screen mode initially.
+		self.__isPortrait = False
 
 		#Haupt vbox für alle Elemente
 		self.window = gtk.Window()
@@ -251,7 +252,51 @@ class Multilist(hildonize.get_app_class()):
 
 		self.window.show_all()
 		self._search.hide()
+		self._load_settings()
 		self._prepare_sync_dialog()
+
+	def _save_settings(self):
+		config = ConfigParser.SafeConfigParser()
+		self.save_settings(config)
+		with open(self._user_settings, "wb") as configFile:
+			config.write(configFile)
+
+	def save_settings(self, config):
+		config.add_section(constants.__pretty_app_name__)
+		config.set(constants.__pretty_app_name__, "portrait", str(self.__isPortrait))
+		config.set(constants.__pretty_app_name__, "fullscreen", str(self.__window_in_fullscreen))
+
+	def _load_settings(self):
+		config = ConfigParser.SafeConfigParser()
+		config.read(self._user_settings)
+		self.load_settings(config)
+
+	def load_settings(self, config):
+		isPortrait = False
+		window_in_fullscreen = False
+		try:
+			isPortrait = config.getboolean(constants.__pretty_app_name__, "portrait")
+			window_in_fullscreen = config.getboolean(constants.__pretty_app_name__, "fullscreen")
+		except ConfigParser.NoSectionError, e:
+			_moduleLogger.info(
+				"Settings file %s is missing section %s" % (
+					self._user_settings,
+					e.section,
+				)
+			)
+
+		if isPortrait ^ self.__isPortrait:
+			if isPortrait:
+				orientation = gtk.ORIENTATION_VERTICAL
+			else:
+				orientation = gtk.ORIENTATION_HORIZONTAL
+			self.set_orientation(orientation)
+
+		self.__window_in_fullscreen = window_in_fullscreen
+		if self.__window_in_fullscreen:
+			self.window.fullscreen()
+		else:
+			self.window.unfullscreen()
 
 	def _toggle_search(self):
 		if self._search.get_property("visible"):
@@ -264,23 +309,23 @@ class Multilist(hildonize.get_app_class()):
 			hildonize.window_to_portrait(self.window)
 			self.bottombar.set_orientation(gtk.ORIENTATION_VERTICAL)
 			self.selection.set_orientation(gtk.ORIENTATION_VERTICAL)
-			self.__isLandscape = False
-		elif orientation == gtk.ORIENTATION_HORIZONTALt :
+			self.__isPortrait = True
+		elif orientation == gtk.ORIENTATION_HORIZONTAL:
 			hildonize.window_to_landscape(self.window)
 			self.bottombar.set_orientation(gtk.ORIENTATION_HORIZONTAL)
 			self.selection.set_orientation(gtk.ORIENTATION_HORIZONTAL)
-			self.__isLandscape = True
+			self.__isPortrait = False
 		else:
 			raise NotImplementedError(orientation)
 
 	def get_orientation(self):
-		return gtk.ORIENTATION_HORIZONTAL if self.__isLandscape else gtk.ORIENTATION_VERTICAL
+		return gtk.ORIENTATION_VERTICAL if self.__isPortrait else gtk.ORIENTATION_HORIZONTAL
 
 	def _toggle_rotate(self):
-		if self.__isLandscape:
-			self.set_orientation(gtk.ORIENTATION_VERTICAL)
-		else:
+		if self.__isPortrait:
 			self.set_orientation(gtk.ORIENTATION_HORIZONTAL)
+		else:
+			self.set_orientation(gtk.ORIENTATION_VERTICAL)
 
 	@gtk_toolbox.log_exception(_moduleLogger)
 	def _on_checkout_all(self, widget):
@@ -316,7 +361,7 @@ class Multilist(hildonize.get_app_class()):
 			event.keyval in RETURN_TYPES and isCtrl
 		):
 			# The "Full screen" hardware key has been pressed 
-			if self.window_in_fullscreen:
+			if self.__window_in_fullscreen:
 				self.window.unfullscreen ()
 			else:
 				self.window.fullscreen ()
@@ -342,9 +387,9 @@ class Multilist(hildonize.get_app_class()):
 	@gtk_toolbox.log_exception(_moduleLogger)
 	def _on_window_state_change(self, widget, event, *args):
 		if event.new_window_state & gtk.gdk.WINDOW_STATE_FULLSCREEN:
-			self.window_in_fullscreen = True
+			self.__window_in_fullscreen = True
 		else:
-			self.window_in_fullscreen = False
+			self.__window_in_fullscreen = False
 
 	@gtk_toolbox.log_exception(_moduleLogger)
 	def _on_sync_finished(self, data = None, data2 = None):
@@ -383,6 +428,7 @@ class Multilist(hildonize.get_app_class()):
 			self.__settingsWindow.set_transient_for(self.window)
 			self.__settingsWindow.set_default_size(*self.window.get_size())
 			self.__settingsWindow.connect("delete-event", self._on_settings_delete)
+		self.__settingsManager.set_portrait_state(self.__isPortrait)
 		self.__settingsWindow.set_modal(True)
 		self.__settingsWindow.show_all()
 
@@ -396,12 +442,22 @@ class Multilist(hildonize.get_app_class()):
 		self.__settingsManager.save(self.db)
 		self.view.reload_view()
 
+		isPortrait = self.__settingsManager.is_portrait()
+		if isPortrait ^ self.__isPortrait:
+			if isPortrait:
+				orientation = gtk.ORIENTATION_VERTICAL
+			else:
+				orientation = gtk.ORIENTATION_HORIZONTAL
+			self.set_orientation(orientation)
+
 		return True
 
 	@gtk_toolbox.log_exception(_moduleLogger)
 	def _on_destroy(self, widget = None, data = None):
 		try:
 			self.db.close()
+			self._save_settings()
+
 			try:
 				self._osso_c.close()
 			except AttributeError:

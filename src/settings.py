@@ -54,10 +54,19 @@ class SettingsDialog(object):
 
 			self.__columnsSection.pack_start(checkbutton)
 
-		columnsFrame = gtk.Frame(_("Choose Columns"))
+		columnsFrame = gtk.Frame(_("Visible Columns"))
 		columnsFrame.add(self.__columnsSection)
 
+		self.__rotationSection = gtk.VBox()
+
+		self.__isPortraitCheckbutton = gtk.CheckButton(_("Portrait Mode"))
+		self.__rotationSection.pack_start(self.__isPortraitCheckbutton)
+
+		rotationFrame = gtk.Frame(_("Rotation"))
+		rotationFrame.add(self.__rotationSection)
+
 		settingsBox = gtk.VBox()
+		settingsBox.pack_start(rotationFrame)
 		settingsBox.pack_start(columnsFrame)
 		settingsView = gtk.Viewport()
 		settingsView.add(settingsBox)
@@ -67,6 +76,12 @@ class SettingsDialog(object):
 		parent.pack_start(settingsScrollView)
 
 		settingsScrollView = hildonize.hildonize_scrollwindow(settingsScrollView)
+
+	def set_portrait_state(self, isPortrait):
+		self.__isPortraitCheckbutton.set_active(isPortrait)
+
+	def is_portrait(self):
+		return self.__isPortraitCheckbutton.get_active()
 
 	def is_col_selected(self, icol):
 		children = self.__columnsSection.get_children()
