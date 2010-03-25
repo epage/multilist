@@ -208,9 +208,21 @@ class Multilist(hildonize.get_app_class()):
 			filterGroup = button
 
 			button = hildonize.hildon.GtkRadioButton(gtk.HILDON_SIZE_AUTO, filterGroup)
+			button.set_label("New")
+			menuBar.add_filter(button)
+			button.connect("clicked", self._on_click_menu_filter, self.liststorehandler.SHOW_NEW)
+			button.set_mode(False)
+
+			button = hildonize.hildon.GtkRadioButton(gtk.HILDON_SIZE_AUTO, filterGroup)
 			button.set_label("Active")
 			menuBar.add_filter(button)
 			button.connect("clicked", self._on_click_menu_filter, self.liststorehandler.SHOW_ACTIVE)
+			button.set_mode(False)
+
+			button = hildonize.hildon.GtkRadioButton(gtk.HILDON_SIZE_AUTO, filterGroup)
+			button.set_label("Done")
+			menuBar.add_filter(button)
+			button.connect("clicked", self._on_click_menu_filter, self.liststorehandler.SHOW_COMPLETE)
 			button.set_mode(False)
 
 			renameListButton= gtk.Button(_("Rename List"))

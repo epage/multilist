@@ -38,8 +38,10 @@ _moduleLogger = logging.getLogger(__name__)
 class Liststorehandler(object):
 
 	SHOW_ALL = "all"
-	SHOW_ACTIVE = "active"
-	ALL_FILTERS = (SHOW_ALL, SHOW_ACTIVE)
+	SHOW_NEW = "-1"
+	SHOW_ACTIVE = "0"
+	SHOW_COMPLETE = "1"
+	ALL_FILTERS = (SHOW_ALL, SHOW_NEW, SHOW_ACTIVE, SHOW_COMPLETE)
 
 	def __init__(self, db, selection):
 		self.db = db
@@ -65,7 +67,7 @@ class Liststorehandler(object):
 		return self.__filter
 
 	def get_unitsstore(self):
-		if (self.unitsstore == None):
+		if self.unitsstore is None:
 			self.unitsstore = gtk.ListStore(str, str, str, str, str,  str, str, str, str, str, str, str, str)
 		self.unitsstore.clear()
 		#row(3) quantities
@@ -86,10 +88,10 @@ class Liststorehandler(object):
 		return self.unitsstore
 
 	def __calculate_status(self):
-		if self.__filter == self.SHOW_ACTIVE:
-			status = "0"
+		if self.__filter == self.SHOW_ALL:
+			status = self.SHOW_NEW
 		else:
-			status = "-1"
+			status = self.__filter
 		return status
 
 	def get_liststore(self, titlesearch = ""):
@@ -99,7 +101,7 @@ class Liststorehandler(object):
 
 		titlesearch = titlesearch+"%"
 
-		if self.__filter == self.SHOW_ACTIVE:
+		if self.__filter != self.SHOW_ALL:
 			status = self.__calculate_status()
 			sql = "SELECT uid, status, title, quantitiy, unit, price, priority, date, private, stores, note, custom1, custom2 FROM items WHERE list = ? AND category LIKE ? AND status = ? AND title like ? ORDER BY category, status, title"
 			rows = self.db.ladeSQL(sql, (self.selection.get_list(), self.selection.get_category(True), status, titlesearch))
@@ -137,10 +139,10 @@ class Liststorehandler(object):
 
 	def checkout_rows(self):
 		sql = "UPDATE items SET status = ? WHERE list = ? AND category LIKE ? AND status = ?"
-		self.db.speichereSQL(sql, ("-1", self.selection.get_list(), self.selection.get_category(True), "1"))
+		self.db.speichereSQL(sql, (self.SHOW_NEW, self.selection.get_list(), self.selection.get_category(True), self.SHOW_COMPLETE))
 		for i in range(len(self.liststore)):
-			if self.liststore[i][1] == "1":
-				self.liststore[i][1] = "-1"
+			if self.liststore[i][1] == self.SHOW_COMPLETE:
+				self.liststore[i][1] = self.SHOW_NEW
 
 	def add_row(self, title = ""):
 		status = self.__calculate_status()

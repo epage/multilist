@@ -26,6 +26,7 @@ import gtk
 import gobject
 
 import gtk_toolbox
+import libliststorehandler
 
 
 try:
@@ -52,7 +53,7 @@ class TripleToggleCellRenderer(gtk.CellRendererToggle):
 		gtk.CellRendererToggle.__init__(self)
 		self.set_property("activatable", True)
 		self.connect('toggled', self._on_toggled)
-		self.status = -1
+		self.status = libliststorehandler.Liststorehandler.SHOW_NEW
 
 	@gtk_toolbox.log_exception(_moduleLogger)
 	def do_set_property(self, property, value):
@@ -63,9 +64,9 @@ class TripleToggleCellRenderer(gtk.CellRendererToggle):
 
 		if property.name == "status":
 			active, inconsistent = {
-				"-1": (False, True),
-				"0": (False, False),
-				"1": (True, False),
+				libliststorehandler.Liststorehandler.SHOW_NEW: (False, False),
+				libliststorehandler.Liststorehandler.SHOW_ACTIVE: (False, True),
+				libliststorehandler.Liststorehandler.SHOW_COMPLETE: (True, False),
 			}[value]
 			self.set_property("active", active)
 			self.set_property("inconsistent", inconsistent)
@@ -148,7 +149,6 @@ class View(gtk.VBox):
 					self.cell[i].connect("edited", self._on_col_edited, i)
 					self.tvcolumn[i].set_attributes(self.cell[i], text = i)
 
-				self.cell[i].set_property('cell-background', 'lightgray')
 				self.tvcolumn[i].set_sort_column_id(i)
 				self.tvcolumn[i].set_resizable(True)
 				self.treeview.append_column(self.tvcolumn[i])

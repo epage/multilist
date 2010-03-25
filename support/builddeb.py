@@ -21,6 +21,9 @@ __email__ = "n800@axique.net"
 __version__ = constants.__version__
 __build__ = constants.__build__
 __changelog__ = """
+0.3.6
+* Adding filtering for new and complete in addition to all and active
+
 0.3.5
 * Bugfix: Fixing the application launcher
 
