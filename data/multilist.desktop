@@ -1,9 +1,10 @@
 [Desktop Entry]
-Version=0.3.0
 Encoding=UTF-8
 Name=Multilist
-Exec=/usr/bin/multilist
-Icon=multilist
+Comment=Multilist
 Type=Application
-#X-Osso-Service=multilist
-X-Osso-Type=application/x-executable 
+Exec=/usr/bin/run-standalone.sh /usr/bin/multilist.py
+Icon=multilist
+X-Window-Icon=multilist
+X-Window-Icon-Dimmed=multilist
+X-Osso-Type=application/x-executable
