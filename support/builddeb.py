@@ -21,6 +21,9 @@ __email__ = "n800@axique.net"
 __version__ = constants.__version__
 __build__ = constants.__build__
 __changelog__ = """
+0.3.8
+* Fixed check boxes on Maemo
+
 0.3.7
 * Corrected the bug tracker link
 
