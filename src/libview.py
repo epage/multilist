@@ -22,9 +22,11 @@ Copyright (C) 2008 Christoph Würstle
 
 import logging
 
-import gtk
 import gobject
+import gtk
+import pango
 
+import hildonize
 import gtk_toolbox
 import libliststorehandler
 
@@ -41,8 +43,7 @@ _moduleLogger = logging.getLogger(__name__)
 class TripleToggleCellRenderer(gtk.CellRendererToggle):
 
 	__gproperties__ = {
-		"status": (gobject.TYPE_STRING, "Status",
-		"Status", "", gobject.PARAM_READWRITE),
+		"status": (gobject.TYPE_STRING, "Status", "Status", "", gobject.PARAM_READWRITE),
 	}
 
 	__gsignals__ = {
@@ -81,6 +82,108 @@ class TripleToggleCellRenderer(gtk.CellRendererToggle):
 
 
 gobject.type_register(TripleToggleCellRenderer)
+
+
+class CellRendererTriple(gtk.GenericCellRenderer):
+	__gproperties__ = {
+		"status": (gobject.TYPE_STRING, "Status", "Status", "", gobject.PARAM_READWRITE),
+	}
+
+	__gsignals__ = {
+		'status_changed' : (gobject.SIGNAL_RUN_LAST, gobject.TYPE_NONE,(gobject.TYPE_INT,gobject.TYPE_STRING)),
+	}
+
+	def __init__(self):
+		gtk.GenericCellRenderer.__init__(self)
+		self.status = -1
+		self.last_cell = None
+
+		self.set_property('mode', gtk.CELL_RENDERER_MODE_ACTIVATABLE)
+		self.set_property('visible', True)
+
+	def do_set_property(self,property,value):
+		setattr(self, property.name, value)
+
+	def do_get_property(self, property):
+		return getattr(self, property.name)
+
+	def _get_layout(self, widget):
+		'''Gets the Pango layout used in the cell in a TreeView widget.'''
+
+		layout = pango.Layout(widget.get_pango_context())
+		layout.set_width(-1) # Do not wrap text.
+
+		layout.set_text('  ')
+
+		return layout
+
+	def on_get_size(self, widget, cell_area=None):
+		layout = self._get_layout(widget)
+		width, height = layout.get_pixel_size()
+
+		xpad = 2
+		ypad = 2
+
+		xalign = 0
+		yalign = 0.5
+
+		x_offset = xpad
+		y_offset = ypad
+
+		if cell_area is not None:
+			x_offset = xalign * (cell_area.width - width)
+			x_offset = max(x_offset, xpad)
+			x_offset = int(round(x_offset, 0))
+
+			y_offset = yalign * (cell_area.height - height)
+			y_offset = max(y_offset, ypad)
+			y_offset = int(round(y_offset, 0))
+
+		width = width + (xpad * 2)
+		height = height + (ypad * 2)
+
+		return x_offset, y_offset, width, height
+
+	def on_render(self, window, widget, background_area, cell_area, expose_area, flags ):
+		self.last_cell = cell_area
+
+		x = cell_area.x
+		y = cell_area.y
+		width = cell_area.width
+		height = cell_area.height
+
+		if False:
+			# This is how it should work but due to theme issues on Maemo, it doesn't work
+			if widget.state == gtk.STATE_INSENSITIVE:
+				state = gtk.STATE_INSENSITIVE
+			elif flags & gtk.CELL_RENDERER_SELECTED:
+				if widget.is_focus():
+					state = gtk.STATE_SELECTED
+				else:
+					state = gtk.STATE_ACTIVE
+			else:
+				state = gtk.STATE_NORMAL
+
+		if self.status == libliststorehandler.Liststorehandler.SHOW_COMPLETE:
+			shadow = gtk.SHADOW_IN
+			state = gtk.STATE_NORMAL
+		elif self.status == libliststorehandler.Liststorehandler.SHOW_ACTIVE:
+			shadow = gtk.SHADOW_ETCHED_IN
+			state = gtk.STATE_NORMAL
+		elif self.status == libliststorehandler.Liststorehandler.SHOW_NEW:
+			shadow = gtk.SHADOW_OUT
+			state = gtk.STATE_SELECTED
+		else:
+			raise NotImplementedError(self.status)
+
+		widget.style.paint_check(window, state, shadow, cell_area, widget, "cellcheck",x,y,width,height)
+
+	def on_activate(self, event, widget, path, background_area, cell_area, flags):
+		self.emit("status_changed", int(path), "-1")
+		return False
+
+
+gobject.type_register(CellRendererTriple)
 
 
 class View(gtk.VBox):
@@ -129,24 +232,34 @@ class View(gtk.VBox):
 				default = "0"
 			if self.db.ladeDirekt("showcol_"+str(self.liststorehandler.get_colname(i)), default) == "1":
 				if i in [1]:
-					self.cell[i] = TripleToggleCellRenderer()
+					# HACK Hildon has theme issues with inconsistent items, so
+					# we have a hacked together toggle to make it work on
+					# hildon
+					if hildonize.IS_HILDON:
+						self.cell[i] = CellRendererTriple()
+					else:
+						self.cell[i] = TripleToggleCellRenderer()
+					self.cell[i].connect('status_changed', self._on_col_toggled)
 					self.tvcolumn[i] = gtk.TreeViewColumn("", self.cell[i])
-					self.cell[i].connect( 'status_changed', self._on_col_toggled)
 					self.tvcolumn[i].set_attributes( self.cell[i], status = i)
 				elif i in [3, 6]:
 					self.cell[i] = gtk.CellRendererCombo()
-					self.tvcolumn[i] = gtk.TreeViewColumn(self.liststorehandler.get_colname(i), self.cell[i])
 					self.cell[i].set_property("model", m)
 					self.cell[i].set_property('text-column', i)
 					self.cell[i].set_property('editable', True)
 					self.cell[i].connect("edited", self._on_col_edited, i)
+					self.tvcolumn[i] = gtk.TreeViewColumn(
+						self.liststorehandler.get_colname(i), self.cell[i]
+					)
 					self.tvcolumn[i].set_attributes( self.cell[i], text = i)
 				else:
 					self.cell[i] = gtk.CellRendererText()
-					self.tvcolumn[i] = gtk.TreeViewColumn(self.liststorehandler.get_colname(i), self.cell[i])
 					self.cell[i].set_property('editable', True)
 					self.cell[i].set_property('editable-set', True)
 					self.cell[i].connect("edited", self._on_col_edited, i)
+					self.tvcolumn[i] = gtk.TreeViewColumn(
+						self.liststorehandler.get_colname(i), self.cell[i]
+					)
 					self.tvcolumn[i].set_attributes(self.cell[i], text = i)
 
 				self.tvcolumn[i].set_sort_column_id(i)
