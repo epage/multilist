@@ -235,7 +235,7 @@ class View(gtk.VBox):
 					# HACK Hildon has theme issues with inconsistent items, so
 					# we have a hacked together toggle to make it work on
 					# hildon
-					if hildonize.IS_HILDON:
+					if hildonize.IS_HILDON_SUPPORTED:
 						self.cell[i] = CellRendererTriple()
 					else:
 						self.cell[i] = TripleToggleCellRenderer()
