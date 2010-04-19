@@ -49,9 +49,9 @@ class Liststorehandler(object):
 		self.liststore = None
 		self.unitsstore = None
 		self.selection = selection
-		self.collist = ("uid", "status", "title", "quantitiy", "unit", "price", "priority", "date", "private", "stores", "note", "custom1", "custom2")
+		self.collist = ("uid", "status", "title", "quantity", "unit", "price", "priority", "date", "private", "stores", "note", "custom1", "custom2")
 
-		sql = "CREATE TABLE items (uid TEXT, list TEXT, category TEXT, status TEXT, title TEXT, quantitiy TEXT, unit TEXT, price TEXT, priority TEXT, date TEXT, pcdate TEXT, private TEXT, stores TEXT, note TEXT, custom1 TEXT, custom2 TEXT)"
+		sql = "CREATE TABLE items (uid TEXT, list TEXT, category TEXT, status TEXT, title TEXT, quantity TEXT, unit TEXT, price TEXT, priority TEXT, date TEXT, pcdate TEXT, private TEXT, stores TEXT, note TEXT, custom1 TEXT, custom2 TEXT)"
 		self.db.speichereSQL(sql)
 
 		self.selection.load()
@@ -103,19 +103,19 @@ class Liststorehandler(object):
 
 		if self.__filter != self.SHOW_ALL:
 			status = self.__calculate_status()
-			sql = "SELECT uid, status, title, quantitiy, unit, price, priority, date, private, stores, note, custom1, custom2 FROM items WHERE list = ? AND category LIKE ? AND status = ? AND title like ? ORDER BY category, status, title"
+			sql = "SELECT uid, status, title, quantity, unit, price, priority, date, private, stores, note, custom1, custom2 FROM items WHERE list = ? AND category LIKE ? AND status = ? AND title like ? ORDER BY category, status, title"
 			rows = self.db.ladeSQL(sql, (self.selection.get_list(), self.selection.get_category(True), status, titlesearch))
 		else:
-			sql = "SELECT uid, status, title, quantitiy, unit, price, priority, date, private, stores, note, custom1, custom2 FROM items WHERE list = ? AND category LIKE ? AND title LIKE ? ORDER BY category, title ASC"
+			sql = "SELECT uid, status, title, quantity, unit, price, priority, date, private, stores, note, custom1, custom2 FROM items WHERE list = ? AND category LIKE ? AND title LIKE ? ORDER BY category, title ASC"
 			rows = self.db.ladeSQL(sql, (self.selection.get_list(), self.selection.get_category(True), titlesearch))
 
 		if rows is not None:
 			for row in rows:
-				uid, status, title, quantitiy, unit, price, priority, date, private, stores, note, custom1, custom2 = row
+				uid, status, title, quantity, unit, price, priority, date, private, stores, note, custom1, custom2 = row
 				if unit == None:
 					pass
 					#unit = ""
-				self.liststore.append([uid, status, title, quantitiy, unit, price, priority, date, private, stores, note, custom1, custom2])
+				self.liststore.append([uid, status, title, quantity, unit, price, priority, date, private, stores, note, custom1, custom2])
 
 		return self.liststore
 
