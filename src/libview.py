@@ -20,6 +20,7 @@ along with Multilist.  If not, see <http://www.gnu.org/licenses/>.
 Copyright (C) 2008 Christoph Würstle
 """
 
+import sys
 import logging
 
 import gobject
@@ -226,12 +227,12 @@ class View(gtk.VBox):
 		m = self.liststorehandler.get_unitsstore()
 
 		for i in range(self.liststorehandler.get_colcount()):
-			if i in [1, 2]:
+			if i in [1, 2]: # status, title
 				default = "1"
 			else:
 				default = "0"
 			if self.db.ladeDirekt("showcol_"+str(self.liststorehandler.get_colname(i)), default) == "1":
-				if i in [1]:
+				if i in [1]: # status
 					# HACK Hildon has theme issues with inconsistent items, so
 					# we have a hacked together toggle to make it work on
 					# hildon
@@ -242,7 +243,18 @@ class View(gtk.VBox):
 					self.cell[i].connect('status_changed', self._on_col_toggled)
 					self.tvcolumn[i] = gtk.TreeViewColumn("", self.cell[i])
 					self.tvcolumn[i].set_attributes( self.cell[i], status = i)
-				elif i in [3, 6]:
+				elif i in [3, 5]: # quantity, price
+					self.cell[i] = gtk.CellRendererSpin()
+					adjustment = gtk.Adjustment(0, -sys.float_info.max, sys.float_info.max, 1)
+					self.cell[i].set_property('adjustment', adjustment)
+					self.cell[i].set_property('digits', 2 if i == 5 else 0)
+					self.cell[i].set_property('editable', True)
+					self.cell[i].connect("edited", self._on_col_edited, i)
+					self.tvcolumn[i] = gtk.TreeViewColumn(
+						self.liststorehandler.get_colname(i), self.cell[i]
+					)
+					self.tvcolumn[i].set_attributes( self.cell[i], text = i)
+				elif i in [4, 6]: # unit, priority
 					self.cell[i] = gtk.CellRendererCombo()
 					self.cell[i].set_property("model", m)
 					self.cell[i].set_property('text-column', i)
