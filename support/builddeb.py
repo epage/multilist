@@ -21,6 +21,9 @@ __email__ = "n800@axique.net"
 __version__ = constants.__version__
 __build__ = constants.__build__
 __changelog__ = """
+0.3.10
+* Added panning
+
 0.3.9
 * Fixed a typo (loss of db with this)
 * Switched to a spinner and switched unit to a combo
