@@ -360,8 +360,9 @@ def _fremantle_hildonize_scrollwindow(scrolledWindow):
 	pannableWindow = hildon.PannableArea()
 
 	child = scrolledWindow.get_child()
-	scrolledWindow.remove(child)
-	pannableWindow.add(child)
+	if child is not None:
+		scrolledWindow.remove(child)
+		pannableWindow.add(child)
 
 	parent = scrolledWindow.get_parent()
 	if parent is not None:

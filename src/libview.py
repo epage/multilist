@@ -203,6 +203,8 @@ class View(gtk.VBox):
 		self.scrolled_window.set_policy(gtk.POLICY_AUTOMATIC, gtk.POLICY_AUTOMATIC)
 		self.pack_start(self.scrolled_window, expand = True, fill = True, padding = 0)
 
+		self.scrolled_window = hildonize.hildonize_scrollwindow(self.scrolled_window)
+
 		self.reload_view()
 
 	def loadList(self):
