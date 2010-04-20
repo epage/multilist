@@ -198,7 +198,11 @@ class View(gtk.VBox):
 
 		logging.info("libview, init")
 
-		self.scrolled_window = None
+		self.treeview = None
+		self.scrolled_window = gtk.ScrolledWindow()
+		self.scrolled_window.set_policy(gtk.POLICY_AUTOMATIC, gtk.POLICY_AUTOMATIC)
+		self.pack_start(self.scrolled_window, expand = True, fill = True, padding = 0)
+
 		self.reload_view()
 
 	def loadList(self):
@@ -217,6 +221,8 @@ class View(gtk.VBox):
 		self.modelsort = gtk.TreeModelSort(self.liststorehandler.get_liststore())
 		self.modelsort.set_sort_column_id(2, gtk.SORT_ASCENDING)
 
+		if self.treeview is not None:
+			self.scrolled_window.remove(self.treeview)
 		self.treeview = gtk.TreeView(self.modelsort)
 		self.treeview.set_headers_visible(True)
 		self.treeview.set_reorderable(False)
@@ -278,14 +284,7 @@ class View(gtk.VBox):
 				self.tvcolumn[i].set_resizable(True)
 				self.treeview.append_column(self.tvcolumn[i])
 
-		if self.scrolled_window is not None:
-			self.scrolled_window.destroy()
-
-		self.scrolled_window = gtk.ScrolledWindow()
-		self.scrolled_window.set_policy(gtk.POLICY_AUTOMATIC, gtk.POLICY_AUTOMATIC)
-
 		self.scrolled_window.add(self.treeview)
-		self.pack_start(self.scrolled_window, expand = True, fill = True, padding = 0)
 		self.loadList()
 
 		self.show_all()
