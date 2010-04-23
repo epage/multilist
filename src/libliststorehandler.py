@@ -20,6 +20,7 @@ along with Multilist.  If not, see <http://www.gnu.org/licenses/>.
 Copyright (C) 2008 Christoph Würstle
 """
 
+import ConfigParser
 import logging
 
 import gtk
@@ -57,6 +58,18 @@ class Liststorehandler(object):
 		self.selection.load()
 		self.selection.connect("changed", self.update_list)
 		#self.selection.connect("changedCategory", self.update_category)
+
+	def save_settings(self, config, sectionName):
+		config.set(sectionName, "filter", self.__filter)
+
+	def load_settings(self, config, sectionName):
+		try:
+			selectedFilter = config.get(sectionName, "filter")
+			self.set_filter(selectedFilter)
+		except ConfigParser.NoSectionError:
+			pass
+		except ConfigParser.NoOptionError:
+			pass
 
 	def set_filter(self, filter):
 		assert filter in self.ALL_FILTERS

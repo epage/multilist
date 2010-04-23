@@ -278,6 +278,9 @@ class Multilist(hildonize.get_app_class()):
 		config.set(constants.__pretty_app_name__, "portrait", str(self.__isPortrait))
 		config.set(constants.__pretty_app_name__, "fullscreen", str(self.__window_in_fullscreen))
 
+		config.add_section("List")
+		self.liststorehandler.save_settings(config, "List")
+
 	def _load_settings(self):
 		config = ConfigParser.SafeConfigParser()
 		config.read(self._user_settings)
@@ -309,6 +312,8 @@ class Multilist(hildonize.get_app_class()):
 			self.window.fullscreen()
 		else:
 			self.window.unfullscreen()
+
+		self.liststorehandler.load_settings(config, "List")
 
 	def _toggle_search(self):
 		if self._search.get_property("visible"):
