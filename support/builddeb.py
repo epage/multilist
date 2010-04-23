@@ -22,7 +22,7 @@ __version__ = constants.__version__
 __build__ = constants.__build__
 __changelog__ = """
 0.3.10
-* Added panning
+* Added panning [removed due not being able to edit]
 
 0.3.9
 * Fixed a typo (loss of db with this)
