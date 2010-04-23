@@ -203,7 +203,7 @@ class View(gtk.VBox):
 		self.scrolled_window.set_policy(gtk.POLICY_AUTOMATIC, gtk.POLICY_AUTOMATIC)
 		self.pack_start(self.scrolled_window, expand = True, fill = True, padding = 0)
 
-		self.scrolled_window = hildonize.hildonize_scrollwindow(self.scrolled_window)
+		self.scrolled_window = hildonize.hildonize_scrollwindow_with_viewport(self.scrolled_window)
 
 		self.reload_view()
 
@@ -253,7 +253,15 @@ class View(gtk.VBox):
 					self.tvcolumn[i].set_attributes( self.cell[i], status = i)
 				elif i in [3, 5]: # quantity, price
 					self.cell[i] = gtk.CellRendererSpin()
-					adjustment = gtk.Adjustment(0, -sys.float_info.max, sys.float_info.max, 1)
+					try:
+						# Python 2.6 is much cleaner
+						floatMin = -sys.float_info.min
+						floatMax = sys.float_info.max
+					except AttributeError:
+						# Python 2.5 support
+						floatMin = -1.79e308
+						floatMax = 1.79e308
+					adjustment = gtk.Adjustment(0, floatMin, floatMax, 1)
 					self.cell[i].set_property('adjustment', adjustment)
 					self.cell[i].set_property('digits', 2 if i == 5 else 0)
 					self.cell[i].set_property('editable', True)
