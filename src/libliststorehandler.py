@@ -108,11 +108,11 @@ class Liststorehandler(object):
 		return status
 
 	def get_liststore(self, titlesearch = ""):
-		if (self.liststore == None):
-			self.liststore = gtk.ListStore(str, str, str, str, str,  str, str, str, str, str, str, str, str)
+		if self.liststore is None:
+			self.liststore = gtk.ListStore(str, str, str, str, str, str, str, str, str, str, str, str, str)
 		self.liststore.clear()
 
-		titlesearch = titlesearch+"%"
+		titlesearch = "%"+titlesearch+"%"
 
 		if self.__filter != self.SHOW_ALL:
 			status = self.__calculate_status()
