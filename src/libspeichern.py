@@ -20,13 +20,15 @@ along with Multilist.  If not, see <http://www.gnu.org/licenses/>.
 Copyright (C) 2008 Christoph Würstle
 """
 
+from __future__ import with_statement
+
+import sys
+import os
 import time
 import sqlite3
 import shelve
-import sys
 import string
 import shutil
-import os
 import logging
 
 try:

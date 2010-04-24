@@ -21,6 +21,8 @@ Copyright (C) 2008 Christoph Würstle
 """
 
 import ConfigParser
+import csv
+import uuid
 import logging
 
 import gtk
@@ -71,6 +73,27 @@ class Liststorehandler(object):
 		except ConfigParser.NoOptionError:
 			pass
 
+	def export_data(self, filename):
+		sql = "SELECT list, category, uid, status, title, quantity, unit, price, priority, date, private, stores, note, custom1, custom2 FROM items ORDER BY list, title ASC"
+		rows = self.db.ladeSQL(sql)
+		with open(filename, "w") as f:
+			csvWriter = csv.writer(f)
+			headerRow = ["list", "category"]
+			headerRow.extend(self.collist)
+			csvWriter.writerow(headerRow)
+			csvWriter.writerows(rows)
+
+	def append_data(self, filename):
+		with open(filename, "r") as f:
+			csvReader = csv.reader(f)
+			for row in csvReader:
+				uid = str(uuid.uuid4())
+				row[2] = uid
+				sql = "INSERT INTO items (list, category, uid, status, title, quantity, unit, price, priority, date, private, stores, note, custom1, custom2) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"
+				self.db.speichereSQL(sql, row, rowid = uid)
+		self.db.commitSQL()
+		self.update_list()
+
 	def set_filter(self, filter):
 		assert filter in self.ALL_FILTERS
 		self.__filter = filter
@@ -81,7 +104,7 @@ class Liststorehandler(object):
 
 	def get_unitsstore(self):
 		if self.unitsstore is None:
-			self.unitsstore = gtk.ListStore(str, str, str, str, str,  str, str, str, str, str, str, str, str)
+			self.unitsstore = gtk.ListStore(str, str, str, str, str, str, str, str, str, str, str, str, str)
 		self.unitsstore.clear()
 		#row(3) quantities
 		#row 4 units
@@ -125,9 +148,8 @@ class Liststorehandler(object):
 		if rows is not None:
 			for row in rows:
 				uid, status, title, quantity, unit, price, priority, date, private, stores, note, custom1, custom2 = row
-				if unit == None:
-					pass
-					#unit = ""
+				if unit is None:
+					unit = ""
 				self.liststore.append([uid, status, title, quantity, unit, price, priority, date, private, stores, note, custom1, custom2])
 
 		return self.liststore
@@ -159,7 +181,6 @@ class Liststorehandler(object):
 
 	def add_row(self, title = ""):
 		status = self.__calculate_status()
-		import uuid
 		uid = str(uuid.uuid4())
 		sql = "INSERT INTO items (uid, list, category, status, title) VALUES (?, ?, ?, ?, ?)"
 		self.db.speichereSQL(sql, (uid, self.selection.get_list(), self.selection.get_category(), status, title), rowid = uid)

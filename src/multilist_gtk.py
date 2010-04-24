@@ -116,6 +116,14 @@ class Multilist(hildonize.get_app_class()):
 			menu_items.connect("activate", self.sync_notes, None)
 			fileMenu.append(menu_items)
 
+			menu_items = gtk.MenuItem(_("Import"))
+			menu_items.connect("activate", self._on_import, None)
+			fileMenu.append(menu_items)
+
+			menu_items = gtk.MenuItem(_("Export"))
+			menu_items.connect("activate", self._on_export, None)
+			fileMenu.append(menu_items)
+
 			menu_items = gtk.MenuItem(_("Quit"))
 			menu_items.connect("activate", self._on_destroy, None)
 			fileMenu.append(menu_items)
@@ -224,6 +232,14 @@ class Multilist(hildonize.get_app_class()):
 			menuBar.add_filter(button)
 			button.connect("clicked", self._on_click_menu_filter, self.liststorehandler.SHOW_COMPLETE)
 			button.set_mode(False)
+
+			button = gtk.Button(_("Import"))
+			button.connect("clicked", self._on_import)
+			menuBar.append(button)
+
+			button = gtk.Button(_("Export"))
+			button.connect("clicked", self._on_export)
+			menuBar.append(button)
 
 			renameListButton= gtk.Button(_("Rename List"))
 			renameListButton.connect("clicked", self.bottombar.rename_list)
@@ -413,6 +429,46 @@ class Multilist(hildonize.get_app_class()):
 		self.selection.comboList_changed()
 		self.selection.comboCategory_changed()
 		self.liststorehandler.update_list()
+
+	@gtk_toolbox.log_exception(_moduleLogger)
+	def _on_import(self, *args):
+		csvFilter = gtk.FileFilter()
+		csvFilter.set_name("Import Lists")
+		csvFilter.add_pattern("*.csv")
+		importFileChooser = gtk.FileChooserDialog(
+			title="Contacts",
+			action=gtk.FILE_CHOOSER_ACTION_OPEN,
+			parent=self.window,
+		)
+		importFileChooser.add_button(gtk.STOCK_CANCEL, gtk.RESPONSE_CANCEL)
+		importFileChooser.add_button(gtk.STOCK_OK, gtk.RESPONSE_OK)
+
+		importFileChooser.set_property("filter", csvFilter)
+		userResponse = importFileChooser.run()
+		importFileChooser.hide()
+		if userResponse == gtk.RESPONSE_OK:
+			filename = importFileChooser.get_filename()
+			self.liststorehandler.append_data(filename)
+
+	@gtk_toolbox.log_exception(_moduleLogger)
+	def _on_export(self, *args):
+		csvFilter = gtk.FileFilter()
+		csvFilter.set_name("Export Lists")
+		csvFilter.add_pattern("*.csv")
+		importFileChooser = gtk.FileChooserDialog(
+			title="Contacts",
+			action=gtk.FILE_CHOOSER_ACTION_SAVE,
+			parent=self.window,
+		)
+		importFileChooser.add_button(gtk.STOCK_CANCEL, gtk.RESPONSE_CANCEL)
+		importFileChooser.add_button(gtk.STOCK_OK, gtk.RESPONSE_OK)
+
+		importFileChooser.set_property("filter", csvFilter)
+		userResponse = importFileChooser.run()
+		importFileChooser.hide()
+		if userResponse == gtk.RESPONSE_OK:
+			filename = importFileChooser.get_filename()
+			self.liststorehandler.export_data(filename)
 
 	def _prepare_sync_dialog(self):
 		self.sync_dialog = gtk.Dialog(_("Sync"), None, gtk.DIALOG_MODAL | gtk.DIALOG_DESTROY_WITH_PARENT, (gtk.STOCK_OK, gtk.RESPONSE_ACCEPT))
