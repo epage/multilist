@@ -21,6 +21,11 @@ __email__ = "n800@axique.net"
 __version__ = constants.__version__
 __build__ = constants.__build__
 __changelog__ = """
+0.3.11
+* Saves the filter on restart
+* Search finds text in the middle of titles, not just the beginning
+* Import/Export (import appends rather than merges for now)
+
 0.3.10
 * Added panning [removed due not being able to edit]
 
