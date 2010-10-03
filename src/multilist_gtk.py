@@ -65,9 +65,6 @@ PROFILE_STARTUP = False
 
 class Multilist(hildonize.get_app_class()):
 
-	_user_data = os.path.join(os.path.expanduser("~"), ".%s" % constants.__app_name__)
-	_user_settings = "%s/settings.ini" % _user_data
-
 	def __init__(self):
 		super(Multilist, self).__init__()
 		self._clipboard = gtk.clipboard_get()
@@ -75,7 +72,7 @@ class Multilist(hildonize.get_app_class()):
 		logging.info('Starting Multilist')
 
 		try:
-			os.makedirs(self._user_data)
+			os.makedirs(constants._data_path_)
 		except OSError, e:
 			if e.errno != 17:
 				raise
@@ -286,7 +283,7 @@ class Multilist(hildonize.get_app_class()):
 	def _save_settings(self):
 		config = ConfigParser.SafeConfigParser()
 		self.save_settings(config)
-		with open(self._user_settings, "wb") as configFile:
+		with open(constants._user_settings_, "wb") as configFile:
 			config.write(configFile)
 
 	def save_settings(self, config):
@@ -299,7 +296,7 @@ class Multilist(hildonize.get_app_class()):
 
 	def _load_settings(self):
 		config = ConfigParser.SafeConfigParser()
-		config.read(self._user_settings)
+		config.read(constants._user_settings_)
 		self.load_settings(config)
 
 	def load_settings(self, config):
@@ -311,7 +308,7 @@ class Multilist(hildonize.get_app_class()):
 		except ConfigParser.NoSectionError, e:
 			_moduleLogger.info(
 				"Settings file %s is missing section %s" % (
-					self._user_settings,
+					constants._user_settings_,
 					e.section,
 				)
 			)
