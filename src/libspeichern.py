@@ -106,14 +106,23 @@ class Speichern(object):
 		self.close()
 
 	def speichereDirekt(self, schluessel, daten):
-		self.d[schluessel] = daten
+		try:
+			self.d[schluessel] = daten
+		except ValueError:
+			_moduleLogger.exception("Why oh why do we do this?")
 		_moduleLogger.info("speichereDirekt "+str(schluessel)+" "+str(daten)+" lesen: "+str(self.d[schluessel]))
 
 	def ladeDirekt(self, schluessel, default = ""):
-		if self.d.has_key(schluessel):
-			data = self.d[schluessel]
-			return data
-		else:
+		try:
+			if self.d.has_key(schluessel):
+				data = self.d[schluessel]
+				return data
+			else:
+				return default
+		except ValueError:
+			_moduleLogger.exception(
+				"Why did '%s' cause the problem? (returning default '%s')" % (schluessel, default)
+			)
 			return default
 
 	def speichereSQL(self, sql, tupel = None, commit = True, host = "self", log = True, pcdatum = None, rowid = ""):
