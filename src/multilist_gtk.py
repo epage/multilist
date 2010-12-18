@@ -599,8 +599,8 @@ class Multilist(hildonize.get_app_class()):
 		dialog.set_name(constants.__pretty_app_name__)
 		dialog.set_version(constants.__version__)
 		dialog.set_copyright("")
-		dialog.set_website("http://axique.de/f = Multilist")
-		comments = "%s is a program to handle multiple lists." % constants.__pretty_app_name__
+		dialog.set_website("http://multilist.garage.maemo.org")
+		comments = "%s is a program to handle multiple lists.  For licensing on the icon, see the website." % constants.__pretty_app_name__
 		dialog.set_comments(comments)
 		dialog.set_authors(["Christoph Wurstle <n800@axique.net>", "Ed Page <eopage@byu.net> (Blame him for the most recent bugs)"])
 		dialog.run()

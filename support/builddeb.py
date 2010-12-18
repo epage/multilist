@@ -96,7 +96,7 @@ def build_package(distribution):
 	p.icon = {
 		"debian": "26x26-multilist.png",
 		"diablo": "26x26-multilist.png",
-		"fremantle": "40x40-multilist.png", # Fremantle natively uses 48x48
+		"fremantle": "48x48-multilist.png", # Fremantle natively uses 48x48
 	}[distribution]
 	p["/usr/bin"] = [ "multilist.py" ]
 	for relPath, files in unflatten_files(find_files(".", "locale")).iteritems():
@@ -117,8 +117,8 @@ def build_package(distribution):
 		)
 	p["/usr/share/applications/hildon"] = ["multilist.desktop"]
 	p["/usr/share/icons/hicolor/26x26/hildon"] = ["26x26-multilist.png|multilist.png"]
-	p["/usr/share/icons/hicolor/40x40/hildon"] = ["40x40-multilist.png|multilist.png"]
-	p["/usr/share/icons/hicolor/scalable/hildon"] = ["scale-multilist.png|multilist.png"]
+	p["/usr/share/icons/hicolor/32x32/hildon"] = ["32x32-multilist.png|multilist.png"]
+	p["/usr/share/icons/hicolor/48x48/hildon"] = ["48x48-multilist.png|multilist.png"]
 
 	if distribution == "debian":
 		print p
