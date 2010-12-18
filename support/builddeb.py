@@ -21,9 +21,8 @@ __email__ = "n800@axique.net"
 __version__ = constants.__version__
 __build__ = constants.__build__
 __changelog__ = """
-0.3.12
-* Adding some paranoia protection against a problem brought up on t.m.o thread
-"""
+* Updated the icon to something slightly better
+""".strip()
 
 
 __postinstall__ = """#!/bin/sh -e
