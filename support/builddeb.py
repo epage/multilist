@@ -21,54 +21,8 @@ __email__ = "n800@axique.net"
 __version__ = constants.__version__
 __build__ = constants.__build__
 __changelog__ = """
-0.3.11
-* Saves the filter on restart
-* Search finds text in the middle of titles, not just the beginning
-* Import/Export (import appends rather than merges for now)
-
-0.3.10
-* Added panning [removed due not being able to edit]
-
-0.3.9
-* Fixed a typo (loss of db with this)
-* Switched to a spinner and switched unit to a combo
-
-0.3.8
-* Fixed check boxes on Maemo
-
-0.3.7
-* Corrected the bug tracker link
-
-0.3.6
-* Adding filtering for new and complete in addition to all and active
-
-0.3.5
-* Bugfix: Fixing the application launcher
-
-0.3.4
-* Making rotation configurable in the Settings window
-* Persisting full-screen / rotation settings
-
-0.3.3
-* Rotation support
-* Turned the settings dialog into a window
-
-0.3.2
-* Massive code cleanup
-* Re-arrangement of GTK Menus
-* Added Maemo 5 Menu
-* Moved Active/All filter to menu
-* Moved Checkout All to menu
-* Improved Search bar
-* Removed unnesary UI elements
-* Switched to real inconsistent check boxes for tasks
-* Switching the settings dialog to be more Maemo 5 like
-
-0.3.1
-* I18N, extract de.po, add ru.po.
-
-0.3.0
-* Initial Release.
+0.3.12
+* Adding some paranoia protection against a problem brought up on t.m.o thread
 """
 
 
